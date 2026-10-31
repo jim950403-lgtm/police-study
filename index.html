@@ -726,9 +726,10 @@ function exportData(){
 load();render();
 async function loadData(){
   try{
-    const [laws,exams,notes]=await Promise.all(['laws','exams','notes'].map(n=>fetch('./data/'+n+'.json').then(r=>{if(!r.ok)throw new Error(n+' '+r.status);return r.json();})));
+    const get=async n=>{for(const u of ['./'+n+'.json','./data/'+n+'.json']){try{const r=await fetch(u);if(r.ok)return await r.json();}catch(e){}}throw new Error('找不到 '+n+'.json');};
+    const [laws,exams,notes]=await Promise.all(['laws','exams','notes'].map(get));
     DATA={laws,exams,notes};exams.mc.forEach(q=>QMAP[q.id]=q);buildLawIndex();render();
-  }catch(e){$('#app').innerHTML=`<div class="alert">資料載入失敗：${esc(e.message)}<br>請確認 data 資料夾有上傳，然後重新整理。</div>`;}
+  }catch(e){$('#app').innerHTML=`<div class="alert">資料載入失敗：${esc(e.message)}<br>請確認 laws.json、exams.json、notes.json 三個檔案有上傳到 GitHub（跟 index.html 放在一起），然後重新整理。</div>`;}
 }
 loadData();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&tab==='timer')updateClock();});
