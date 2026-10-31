@@ -404,51 +404,59 @@ function EssayView(){
   $('#app').querySelectorAll('[data-note]').forEach(l=>l.onclick=()=>{noteSubj='crim';noteOpen=l.dataset.note;go('note');});
   $('#app').querySelectorAll('[data-notesubj]').forEach(l=>l.onclick=()=>{noteSubj=l.dataset.notesubj;noteOpen='';go('note');});
 }
+/* 搜尋框：不重畫輸入框，支援注音等中文輸入法 */
+function bindSearch(el,cb,ms=300){let t,comp=false;
+  el.addEventListener('compositionstart',()=>{comp=true;});
+  el.addEventListener('compositionend',()=>{comp=false;clearTimeout(t);t=setTimeout(()=>cb(el.value),150);});
+  el.addEventListener('input',e=>{if(comp||e.isComposing)return;clearTimeout(t);t=setTimeout(()=>cb(el.value),ms);});
+  el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();el.blur();cb(el.value);}});}
 function QSearch(){
-  const q=param.q||'';
-  const res=q.length>=2?MC().filter(x=>(x.q+x.o.join('')).includes(q)).slice(0,60):[];
-  $('#app').innerHTML=`<input id="qs" placeholder="輸入關鍵字，例如：管束、正當防衛、Merton" value="${esc(q)}" class="mb">
-  <div class="muted small mb">${q.length<2?'至少輸入 2 個字':`找到 ${res.length}${res.length===60?'+':''} 題`}</div>
-  ${res.map(x=>`<div class="card tap" data-id="${x.id}"><div class="row mb">${tag(x.s)}<span class="muted small">${x.y} 年 第 ${x.n} 題</span></div><div class="small">${esc(x.q).split(esc(q)).join('<mark>'+esc(q)+'</mark>')}</div></div>`).join('')}
-  ${res.length?'<button class="btn full" id="doall">把這些題目全部練一次</button>':''}`;
-  const i=$('#qs');let tm;i.oninput=()=>{clearTimeout(tm);tm=setTimeout(()=>{param.q=i.value;const pos=i.selectionStart;QSearch();const n=$('#qs');n.focus();n.setSelectionRange(pos,pos);},350);};
-  $('#app').querySelectorAll('[data-id]').forEach(c=>c.onclick=()=>{QS={mode:'practice',ids:[c.dataset.id],i:0,ans:{},title:'搜尋結果'};go('bank',{view:'q'});});
-  const d=$('#doall');if(d)d.onclick=()=>{QS={mode:'practice',ids:res.map(x=>x.id),i:0,ans:{},title:'搜尋：'+q};go('bank',{view:'q'});};
-  if(!q)i.focus();
+  $('#app').innerHTML=`<input id="qs" type="search" enterkeyhint="search" placeholder="輸入關鍵字，例如：管束、正當防衛、Merton" value="${esc(param.q||'')}" class="mb"><div id="qres"></div>`;
+  const draw=q=>{q=q.trim();param.q=q;
+    const res=q.length>=2?MC().filter(x=>(x.q+x.o.join('')).includes(q)).slice(0,80):[];
+    $('#qres').innerHTML=`<div class="muted small mb">${q.length<2?'至少輸入 2 個字':`找到 ${res.length}${res.length===80?'+':''} 題`}</div>
+    ${res.length?'<button class="btn full mb" id="doall">把這些題目全部練一次</button>':''}
+    ${res.map(x=>`<div class="card tap" data-id="${x.id}"><div class="row mb">${tag(x.s)}<span class="muted small">${x.y} 年 第 ${x.n} 題</span>${S.qs[x.id]?`<span class="small ${S.qs[x.id].last?'green':'red'}">${S.qs[x.id].last?'✓':'✗'}</span>`:''}</div><div class="small">${esc(x.q).split(esc(q)).join('<mark>'+esc(q)+'</mark>')}</div></div>`).join('')}`;
+    $('#qres').querySelectorAll('[data-id]').forEach(c=>c.onclick=()=>{QS={mode:'practice',ids:[c.dataset.id],i:0,ans:{},title:'搜尋結果'};go('bank',{view:'q'});});
+    const d=$('#doall');if(d)d.onclick=()=>{QS={mode:'practice',ids:res.map(x=>x.id),i:0,ans:{},title:'搜尋：'+q};go('bank',{view:'q'});};};
+  const i=$('#qs');bindSearch(i,draw);draw(i.value);
 }
 
 /* ================= 法條 ================= */
 let lawSubj='',lawQ='';
 function Laws(){
   if(param.law!=null)return LawView();
-  const D=DATA.laws;const names={crim:'刑法',pol:'警察法規',law:'法學知識'};
-  let body='';
+  $('#app').innerHTML=`<input id="lq" type="search" enterkeyhint="search" placeholder="搜尋條文內容，或輸入「刑法 271」直接跳條" value="${esc(lawQ)}" class="mb"><div id="lbody"></div>`;
+  const i=$('#lq');bindSearch(i,v=>{lawQ=v.trim();lawBody();});lawBody();
+}
+function lawBody(){
+  const D=DATA.laws,names={crim:'刑法',pol:'警察法規',law:'法學知識'};let body='';
   if(lawQ.length>=1){
-    const m=lawQ.match(/^(.+?)\s*(?:第)?\s*(\d+(?:-\d+)?)\s*條?$/);
-    const res=[];
+    const m=lawQ.match(/^(.+?)\s*(?:第)?\s*(\d+(?:-\d+)?)\s*條?$/);const res=[];
     if(m){const ln=Object.keys(LAWIDX).find(n=>n.includes(m[1])||(LAW_ALIAS[m[1]]===n));if(ln&&LAWIDX[ln].arts[m[2]])res.push({ln,no:m[2],t:LAWIDX[ln].arts[m[2]]});}
     if(lawQ.length>=2)for(const l of D.laws){for(const a of l.arts){if(a.n&&a.t.includes(lawQ)){res.push({ln:l.name,no:a.n,t:a.t});if(res.length>=80)break;}}if(res.length>=80)break;}
     body=`<div class="muted small mb">找到 ${res.length}${res.length>=80?'+':''} 條</div>`+res.map(r=>{const i=r.t.indexOf(lawQ);const sn=i>30?'…'+r.t.slice(i-30,i+70):r.t.slice(0,100);return `<div class="card tap" data-law="${esc(r.ln)}" data-no="${r.no}"><b class="small">${esc(r.ln)} 第 ${r.no} 條</b><div class="small">${esc(sn).split(esc(lawQ)).join('<mark>'+esc(lawQ)+'</mark>')}</div></div>`;}).join('');
   }else{
     const stars=Object.keys(S.lawStar);
-    body=(stars.length?`<div class="card"><h2>★ 收藏的條文（${stars.length}）</h2><ul class="list">${stars.map(k=>{const [n,no]=k.split('|');return `<li class="tap small" data-law="${esc(n)}" data-no="${no}">${esc(n.replace('中華民國',''))} 第 ${no} 條</li>`}).join('')}</ul></div>`:'')+
+    body=chips(lawSubj,['crim','pol','law'])+(stars.length?`<div class="card"><h2>★ 收藏的條文（${stars.length}）</h2><ul class="list">${stars.map(k=>{const [n,no]=k.split('|');return `<li class="tap small" data-law="${esc(n)}" data-no="${no}">${esc(n.replace('中華民國',''))} 第 ${no} 條</li>`}).join('')}</ul></div>`:'')+
     ['crim','pol','law'].filter(s=>!lawSubj||s===lawSubj).map(s=>`<div class="card"><h2>${tag(s)} ${names[s]}</h2><ul class="list">${D.laws.map((l,i)=>[l,i]).filter(([l])=>l.subj===s).map(([l,i])=>`<li class="row tap" data-open="${i}"><div class="grow"><b>${esc(l.name)}</b><div class="muted small">${l.arts.filter(a=>a.n).length} 條・<span style="color:${l.imp.includes('命題')||l.imp==='核心'?'var(--pri)':'var(--sub)'}">${esc(l.imp)}</span>・最後修正 ${l.mod.slice(0,4)}/${l.mod.slice(4,6)}/${l.mod.slice(6,8)}</div></div><span class="muted">›</span></li>`).join('')}</ul></div>`).join('')+
-    `<div class="card small muted">犯罪學沒有專屬法規，請看「筆記」。<br>資料來源：${esc(D.source)}，更新於 ${esc(D.updated)}。條文以全國法規資料庫為準。</div>`;
+    `<div class="card small muted">標「命題範圍」「核心」的要整部讀；標「補充」「歷屆有考」的用查的。犯罪學沒有專屬法規，請看「筆記」。<br>資料來源：${esc(D.source)}，更新於 ${esc(D.updated)}。條文以全國法規資料庫為準。</div>`;
   }
-  $('#app').innerHTML=`<input id="lq" placeholder="搜尋條文內容，或輸入「刑法 271」直接跳條" value="${esc(lawQ)}" class="mb">${lawQ?'':chips(lawSubj,['crim','pol','law'])}${body}`;
-  const i=$('#lq');let tm;i.oninput=()=>{clearTimeout(tm);tm=setTimeout(()=>{lawQ=i.value.trim();const pos=i.selectionStart;Laws();const n=$('#lq');n.focus();n.setSelectionRange(pos,pos);},350);};
-  bindChips(f=>{lawSubj=f;Laws();});
-  $('#app').querySelectorAll('[data-open]').forEach(l=>l.onclick=()=>go('law',{law:+l.dataset.open}));
+  const box=$('#lbody');box.innerHTML=body;
+  box.querySelectorAll('.chips [data-f]').forEach(b=>b.onclick=()=>{lawSubj=b.dataset.f;lawBody();});
+  box.querySelectorAll('[data-open]').forEach(l=>l.onclick=()=>go('law',{law:+l.dataset.open}));
 }
 function LawView(){
-  const l=DATA.laws.laws[param.law];const f=param.f||'';
-  const arts=l.arts.filter(a=>!f||a.h||(a.t&&a.t.includes(f))||a.n===f);
+  const l=DATA.laws.laws[param.law];
   $('#app').innerHTML=`<div class="card"><b style="font-size:17px">${esc(l.name)}</b><div class="muted small">${l.arts.filter(a=>a.n).length} 條・${esc(l.imp)}・最後修正 ${l.mod.slice(0,4)}/${l.mod.slice(4,6)}/${l.mod.slice(6,8)}</div>
-  <div class="row mt"><input id="lf" placeholder="在這部法規裡搜尋，或輸入條號" value="${esc(f)}"><a class="btn ghost sm" href="${esc(l.url)}" target="_blank" rel="noopener">官網</a></div></div>
-  <div class="card" id="arts">${arts.map(a=>a.h?(f?'':`<div class="chap">${esc(a.h)}</div>`):`<div class="art" id="a-${a.n}"><div class="row"><span class="no grow">第 ${a.n} 條</span><button class="btn ghost sm" data-star="${a.n}">${S.lawStar[l.name+'|'+a.n]?'★':'☆'}</button><button class="btn ghost sm" data-card="${a.n}">＋卡</button></div><div class="t">${f&&a.t.includes(f)?esc(a.t).split(esc(f)).join('<mark>'+esc(f)+'</mark>'):esc(a.t)}</div></div>`).join('')||'<div class="empty">沒有符合的條文</div>'}</div>`;
-  const i=$('#lf');let tm;i.oninput=()=>{clearTimeout(tm);tm=setTimeout(()=>{param.f=i.value.trim();const pos=i.selectionStart;LawView();const n=$('#lf');n.focus();n.setSelectionRange(pos,pos);},400);};
-  $('#arts').querySelectorAll('[data-star]').forEach(b=>b.onclick=()=>{const k=l.name+'|'+b.dataset.star;if(S.lawStar[k])delete S.lawStar[k];else S.lawStar[k]=today();save();b.textContent=S.lawStar[k]?'★':'☆';});
-  $('#arts').querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>{const no=b.dataset.card;S.cards.push({id:uid(),subj:l.subj,front:l.name.replace('中華民國','')+' 第 '+no+' 條',back:LAWIDX[l.name].arts[no],due:today(),iv:0});save();b.textContent='✓';});
+  <div class="row mt"><input id="lf" type="search" enterkeyhint="search" placeholder="在這部法規裡搜尋，或輸入條號" value="${esc(param.f||'')}"><a class="btn ghost sm" href="${esc(l.url)}" target="_blank" rel="noopener">官網</a></div></div>
+  <div class="card" id="arts"></div>`;
+  const draw=f=>{f=f.trim();param.f=f;
+    const arts=l.arts.filter(a=>!f||a.h||(a.t&&a.t.includes(f))||a.n===f);
+    const box=$('#arts');box.innerHTML=arts.filter(a=>!(f&&a.h)).map(a=>a.h?`<div class="chap">${esc(a.h)}</div>`:`<div class="art" id="a-${a.n}"><div class="row"><span class="no grow">第 ${a.n} 條</span><button class="btn ghost sm" data-star="${a.n}">${S.lawStar[l.name+'|'+a.n]?'★':'☆'}</button><button class="btn ghost sm" data-card="${a.n}">＋卡</button></div><div class="t">${f&&a.t.includes(f)?esc(a.t).split(esc(f)).join('<mark>'+esc(f)+'</mark>'):esc(a.t)}</div></div>`).join('')||'<div class="empty">沒有符合的條文（搜尋的是條文文字，例如「現在不法之侵害」）</div>';
+    box.querySelectorAll('[data-star]').forEach(b=>b.onclick=()=>{const k=l.name+'|'+b.dataset.star;if(S.lawStar[k])delete S.lawStar[k];else S.lawStar[k]=today();save();b.textContent=S.lawStar[k]?'★':'☆';});
+    box.querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>{const no=b.dataset.card;S.cards.push({id:uid(),subj:l.subj,front:l.name.replace('中華民國','')+' 第 '+no+' 條',back:LAWIDX[l.name].arts[no],due:today(),iv:0});save();b.textContent='✓';});};
+  const i=$('#lf');bindSearch(i,draw,400);draw(i.value);
   if(param.jump){const el=document.getElementById('a-'+param.jump);if(el)setTimeout(()=>{el.scrollIntoView({block:'start'});window.scrollBy(0,-70);el.style.background='var(--pri-soft)';},50);param.jump=null;}
 }
 
@@ -605,23 +613,26 @@ function editCard(id,pre){
 /* ================= 錯題 ================= */
 let missFilter='',missState='open',missQ='';
 function Mistakes(){
+  $('#app').innerHTML=`<div class="grid2 mb"><button class="btn" id="nm">＋ 手動新增</button><button class="btn ghost" id="redo">重做這些題</button></div>
+  ${chips(missFilter,S.subjects.map(s=>s.id))}
+  <div class="seg mb"><button data-s="open" class="${missState==='open'?'on':''}">未搞懂（${S.mistakes.filter(m=>!m.done).length}）</button><button data-s="done" class="${missState==='done'?'on':''}">已搞懂</button><button data-s="all" class="${missState==='all'?'on':''}">全部</button></div>
+  <input id="mq" type="search" enterkeyhint="search" placeholder="搜尋題目、答案、原因…" value="${esc(missQ)}" class="mb"><div id="mlist"></div>
+  <div class="muted small">考古題答錯會自動加入；同一題答對 2 次以上會自動標成已搞懂。</div>`;
+  $('#nm').onclick=()=>editMistake();
+  bindChips(f=>{missFilter=f;Mistakes();});
+  $('#app').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{missState=b.dataset.s;Mistakes();});
+  bindSearch($('#mq'),v=>{missQ=v.trim();missList();});missList();
+}
+function missList(){
   let list=S.mistakes.filter(m=>(!missFilter||m.subj===missFilter)&&(missState==='all'||(missState==='open'?!m.done:m.done)));
   if(missQ)list=list.filter(m=>[m.q,m.ans,m.why,m.mine,m.src].join(' ').includes(missQ));
   list=list.slice().reverse();const redo=list.filter(m=>m.qid&&QMAP[m.qid]).map(m=>m.qid);
-  $('#app').innerHTML=`<div class="grid2 mb"><button class="btn" id="nm">＋ 手動新增</button><button class="btn ghost" id="redo" ${redo.length?'':'disabled'}>重做這些題（${redo.length}）</button></div>
-  ${chips(missFilter,S.subjects.map(s=>s.id))}
-  <div class="seg mb"><button data-s="open" class="${missState==='open'?'on':''}">未搞懂（${S.mistakes.filter(m=>!m.done).length}）</button><button data-s="done" class="${missState==='done'?'on':''}">已搞懂</button><button data-s="all" class="${missState==='all'?'on':''}">全部</button></div>
-  <input id="mq" placeholder="搜尋題目、答案、原因…" value="${esc(missQ)}" class="mb">
-  ${list.length?list.map(m=>`<div class="card tap" data-id="${m.id}"><div class="row mb">${tag(m.subj)}<span class="muted small grow">${esc(m.src||'')}${m.cnt>1?'・錯 '+m.cnt+' 次':''}</span><span class="small ${m.done?'green':'red'}">${m.done?'已搞懂':'未搞懂'}</span></div>
+  const r=$('#redo');r.textContent=`重做這些題（${redo.length}）`;r.disabled=!redo.length;r.onclick=()=>{QS={mode:'practice',ids:shuffle(redo),i:0,ans:{},title:'錯題重做'};go('bank',{view:'q'});};
+  const box=$('#mlist');
+  box.innerHTML=list.length?list.map(m=>`<div class="card tap" data-id="${m.id}"><div class="row mb">${tag(m.subj)}<span class="muted small grow">${esc(m.src||'')}${m.cnt>1?'・錯 '+m.cnt+' 次':''}</span><span class="small ${m.done?'green':'red'}">${m.done?'已搞懂':'未搞懂'}</span></div>
     <div style="white-space:pre-wrap;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden">${esc(m.q)}</div>
-    <div class="small mt"><span class="red">我的答案：${esc(m.mine||'—')}</span>　<span class="green">正解：${esc(m.ans)}</span></div>${m.why?`<div class="muted small mt">原因：${esc(m.why)}</div>`:''}</div>`).join(''):'<div class="card empty">沒有錯題</div>'}
-  <div class="muted small">考古題答錯會自動加入；同一題答對 2 次以上會自動標成已搞懂。</div>`;
-  $('#nm').onclick=()=>editMistake();
-  $('#redo').onclick=()=>{QS={mode:'practice',ids:shuffle(redo),i:0,ans:{},title:'錯題重做'};go('bank',{view:'q'});};
-  bindChips(f=>{missFilter=f;Mistakes();});
-  $('#app').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{missState=b.dataset.s;Mistakes();});
-  const mq=$('#mq');let tm;mq.oninput=()=>{missQ=mq.value;clearTimeout(tm);tm=setTimeout(()=>{const pos=mq.selectionStart;Mistakes();const n=$('#mq');n.focus();n.setSelectionRange(pos,pos);},300);};
-  $('#app').querySelectorAll('.card[data-id]').forEach(c=>c.onclick=()=>editMistake(c.dataset.id));
+    <div class="small mt"><span class="red">我的答案：${esc(m.mine||'—')}</span>　<span class="green">正解：${esc(m.ans)}</span></div>${m.why?`<div class="muted small mt">原因：${esc(m.why)}</div>`:''}</div>`).join(''):'<div class="card empty">沒有錯題</div>';
+  box.querySelectorAll('.card[data-id]').forEach(c=>c.onclick=()=>editMistake(c.dataset.id));
 }
 function editMistake(id){
   const m=id?S.mistakes.find(x=>x.id===id):{subj:missFilter||'crim',src:'',q:'',mine:'',ans:'',why:'',done:false};
@@ -707,7 +718,7 @@ function Settings(){
     <li><a href="https://www.moex.gov.tw/" target="_blank" rel="noopener">考選部（應考須知）</a>・<a href="https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx" target="_blank" rel="noopener">考畢試題</a>・<a href="https://law.moj.gov.tw/" target="_blank" rel="noopener">全國法規資料庫</a></li>
     <li class="muted">實際規定以考選部當年應考須知為準。</li></ul></div>
   <div class="card"><h2>重設</h2><button class="btn bad full" id="rs">${resetArmed?'再按一次確認：刪除所有資料':'重設所有資料'}</button></div>
-  <div class="muted small" style="text-align:center">警考讀書 v2.0</div>`;
+  <div class="muted small" style="text-align:center">警考讀書 v2.1</div>`;
   $('#sp').onclick=()=>{const np=S.phases.map(p=>({...p}));$('#phs').querySelectorAll('[data-i]').forEach(i=>{const p=np[+i.dataset.i];p[i.dataset.f]=i.dataset.f==='hours'?Math.max(0,+i.value||0):i.value;});
     if(np.some(p=>!p.name||!p.start||!p.end||p.end<p.start)){alert('每個階段都要有名稱，結束日不能早於開始日');return;}S.phases=np;save();alert('已儲存');};
   $('#spm').onclick=()=>{const f=+$('#pf').value,b=+$('#pb').value;if(f<1||b<1){alert('請輸入大於 0 的分鐘數');return;}S.settings.focus=f;S.settings.brk=b;save();alert('已儲存');};
