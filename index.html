@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>警考讀書</title>
+<meta name="theme-color" content="#0b2447">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="警考讀書">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<style>
+:root{--bg:#f2f5fa;--card:#fff;--ink:#0f1f38;--sub:#5b6b82;--line:#dde4ee;--pri:#1554a8;--pri2:#0b2447;--pri-soft:#e6eefa;--ok:#1f8a4c;--ok-soft:#e5f4ea;--warn:#c98a0b;--bad:#c93636;--bad-soft:#fdecec;--shadow:0 1px 3px rgba(15,31,56,.08)}
+@media (prefers-color-scheme:dark){:root{--bg:#0a1424;--card:#13213a;--ink:#e8eef8;--sub:#9aabc4;--line:#22334f;--pri:#5b9bf0;--pri-soft:#1a2f52;--ok:#4cc27e;--ok-soft:#173a29;--warn:#e7b143;--bad:#ef6b6b;--bad-soft:#3a1d24;--shadow:none}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;font-size:16px;line-height:1.55}
+header{position:sticky;top:0;z-index:5;background:var(--pri2);color:#fff;padding:calc(env(safe-area-inset-top) + 10px) 12px 10px;display:flex;align-items:center;gap:6px}
+header h1{font-size:18px;margin:0;font-weight:700;flex:1}
+header button{background:none;border:none;color:#fff;font-size:20px;padding:4px 8px;cursor:pointer}
+main{padding:14px 14px calc(84px + env(safe-area-inset-bottom));max-width:760px;margin:0 auto}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:5;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:none;color:var(--sub);padding:8px 0 6px;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+nav button .ic{font-size:19px;line-height:1}
+nav button.on{color:var(--pri);font-weight:700}
+.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.card h2{font-size:16px;margin:0 0 10px}
+.row{display:flex;gap:10px;align-items:center}
+.grow{flex:1;min-width:0}
+.muted{color:var(--sub);font-size:13px}
+.small{font-size:12px}
+.big{font-size:30px;font-weight:800;line-height:1.1}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--pri);border-radius:6px}
+.alert{background:var(--bad-soft);color:var(--bad);border:1px solid var(--bad);border-radius:12px;padding:12px;margin-bottom:12px;font-weight:700}
+.tag{display:inline-block;padding:1px 8px;border-radius:20px;font-size:12px;color:#fff;white-space:nowrap;vertical-align:middle}
+.btn{background:var(--pri);color:#fff;border:none;border-radius:10px;padding:10px 14px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn.ghost{background:var(--pri-soft);color:var(--pri)}
+.btn.bad{background:var(--bad)}.btn.ok{background:var(--ok)}
+.btn.sm{padding:6px 10px;font-size:13px;border-radius:8px}
+.btn.full{width:100%}
+.btn:disabled{opacity:.45}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px}
+textarea{min-height:80px;resize:vertical}
+label{display:block;font-size:13px;color:var(--sub);margin:8px 0 4px}
+.list{list-style:none;margin:0;padding:0}
+.list>li{padding:10px 0;border-bottom:1px solid var(--line)}
+.list>li:last-child{border-bottom:none}
+.tap{cursor:pointer}
+.chk{display:flex;gap:6px;flex-wrap:wrap}
+.chk label{margin:0;display:flex;align-items:center;gap:3px;font-size:12px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:3px 7px}
+.chk input{width:auto;margin:0}
+.timer{font-size:56px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;margin:6px 0}
+.seg{display:flex;background:var(--bg);border-radius:10px;padding:3px;border:1px solid var(--line)}
+.seg button{flex:1;border:none;background:none;padding:7px 4px;border-radius:8px;color:var(--sub);font-weight:600;cursor:pointer;font-size:14px;font-family:inherit}
+.seg button.on{background:var(--card);color:var(--pri);box-shadow:var(--shadow)}
+.flash{min-height:180px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:17px;padding:20px;border-radius:14px;background:var(--pri-soft);cursor:pointer;white-space:pre-wrap}
+.flash.back{background:var(--card);border:2px solid var(--pri);text-align:left}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--card);width:100%;max-width:760px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom))}
+.sheet h3{margin:0 0 6px}
+.right{text-align:right}.mt{margin-top:10px}.mb{margin-bottom:10px}
+.red{color:var(--bad)}.green{color:var(--ok)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left}
+.chart{width:100%;height:auto;display:block}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;-webkit-overflow-scrolling:touch}
+.chips button{flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:20px;padding:5px 12px;font-size:13px;cursor:pointer;font-family:inherit}
+.chips button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.empty{text-align:center;color:var(--sub);padding:20px 0}
+a,.lk{color:var(--pri)}
+.lk{text-decoration:underline;text-decoration-style:dotted;cursor:pointer}
+.qtext{font-size:16.5px;white-space:pre-wrap;margin-bottom:12px}
+.opt{display:flex;gap:10px;width:100%;text-align:left;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:8px;font:inherit;color:var(--ink);cursor:pointer}
+.opt b{flex:none;width:22px}
+.opt.sel{border-color:var(--pri);background:var(--pri-soft)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.art{padding:10px 0;border-bottom:1px solid var(--line)}
+.art .no{font-weight:700;color:var(--pri)}
+.art .t{white-space:pre-wrap;font-size:15px}
+.chap{font-weight:700;background:var(--pri-soft);color:var(--pri);padding:6px 10px;border-radius:8px;margin:12px 0 4px;font-size:14px}
+.note h4{margin:14px 0 6px;font-size:15px;color:var(--pri)}
+.note p{margin:4px 0}
+.note li{margin:3px 0}
+.note ul{padding-left:20px;margin:4px 0}
+mark{background:#ffe58a;color:#000;border-radius:3px}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:6px}
+.qgrid button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 0;font-size:13px;cursor:pointer}
+.qgrid button.done{background:var(--pri-soft);color:var(--pri)}
+.qgrid button.r{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
+.qgrid button.w{background:var(--bad-soft);color:var(--bad);border-color:var(--bad)}
+.menu li{display:flex;align-items:center;gap:12px;font-size:16px}
+.menu li .ic{width:28px;text-align:center;font-size:20px}
+#loading{text-align:center;padding:60px 0;color:var(--sub)}
+</style>
+</head>
+<body>
+<header><button id="backbtn" aria-label="返回" style="display:none">‹</button><h1 id="ttl">警考讀書</h1><button id="gear" aria-label="設定">⚙︎</button></header>
+<main id="app"><div id="loading">載入題庫與法條中…</div></main>
+<nav id="nav"></nav>
+<div id="modal"></div>
+<script>
+'use strict';
+/* ================= 預設資料 ================= */
+const KEY='pstudy_v1';
+const SUBJECTS=[
+ {id:'crim',name:'刑法概要',type:'專業',color:'#c93636',ch:['刑法基本原則（罪刑法定、從舊從輕）','犯罪成立三階層（構成要件、違法性、罪責）','故意與過失','不作為犯','因果關係與客觀歸責','阻卻違法事由（依法令、業務正當、正當防衛、緊急避難）','責任能力','未遂犯','正犯與共犯','罪數與競合','刑罰（主刑、沒收、易刑、緩刑、假釋）','分則：生命與身體法益（殺人、傷害）','分則：自由法益','分則：財產法益（竊盜、搶奪、強盜、詐欺、侵占）','分則：公共安全（公共危險、酒駕）','分則：社會法益（賭博、偽造文書）','分則：國家法益（妨害公務、偽證、瀆職）']},
+ {id:'pol',name:'警察法規概要',type:'專業',color:'#1554a8',ch:['警察法及施行細則','警察職權行使法','行政執行法（即時強制）','社會秩序維護法','警械使用條例','集會遊行法','行政程序法','公務人員行政中立法','警察人員人事條例','警察勤務條例','公務人員考績法、公務員懲戒法','其他（提審法、個資法、行政罰法、國家賠償法）','大法官解釋（釋字第445、535、575、718號等）']},
+ {id:'cri',name:'犯罪學概要',type:'專業',color:'#7a3fb5',ch:['研究方法與犯罪測量','古典學派、嚇阻與理性選擇','實證學派（生物、心理）','社會結構理論（社會解組、緊張、次文化）','社會過程理論（學習、控制）','標籤理論與衝突理論','整合與發展理論（生命歷程）','日常活動、情境犯罪預防、CPTED','被害者學','犯罪類型（暴力、財產、毒品、白領、網路、組織）','刑事司法與矯治、修復式正義']},
+ {id:'law',name:'法學知識',type:'共同',color:'#1f8a4c',ch:['憲法：前言、總綱','憲法：人民權利義務','憲法：基本權限制與比例原則','憲法：總統、行政院、立法院','憲法：司法院與憲法法庭','憲法：考試院、監察院、地方制度','憲法增修條文','法學緒論：法的概念與法源','法學緒論：法的效力與位階（中央法規標準法）','法學緒論：法的解釋與適用','法學緒論：權利義務與法律關係','法學緒論：民法、刑法、行政法基本概念']},
+ {id:'eng',name:'英文',type:'共同',color:'#d9730d',ch:['單字','文法','克漏字','閱讀測驗']},
+ {id:'chi',name:'國文',type:'共同',color:'#8a5a2b',ch:['字音字形','成語與詞語','文意理解','公文概要','作文']}
+];
+const BANK_SUBJ=['crim','pol','cri','law'];
+const PHASES=[
+ {name:'大三打底',start:'2026-11-01',end:'2027-06-30',hours:6},
+ {name:'大四第一輪',start:'2027-07-01',end:'2028-06-12',hours:9},
+ {name:'試考',start:'2028-06-13',end:'2028-06-14',hours:0},
+ {name:'等待入伍',start:'2028-06-15',end:'2028-07-31',hours:6},
+ {name:'當兵（維持手感）',start:'2028-08-01',end:'2029-07-31',hours:4},
+ {name:'半工半讀第二輪',start:'2029-08-01',end:'2030-02-28',hours:25},
+ {name:'衝刺',start:'2030-03-01',end:'2030-06-12',hours:30},
+ {name:'正式筆試',start:'2030-06-13',end:'2030-06-14',hours:0}
+];
+const CARDS=[
+ ['crim','刑法第 1 條（罪刑法定）','行為之處罰，以行為時之法律有明文規定者為限。'],
+ ['crim','刑法第 12 條第 1 項','行為非出於故意或過失者，不罰。'],
+ ['crim','刑法第 18 條第 1 項','未滿十四歲人之行為，不罰。'],
+ ['crim','刑法第 23 條（正當防衛）','對於現在不法之侵害，而出於防衛自己或他人權利之行為，不罰。但防衛行為過當者，得減輕或免除其刑。'],
+ ['crim','刑法第 28 條（共同正犯）','二人以上共同實行犯罪之行為者，皆為正犯。'],
+ ['crim','犯罪成立三階層是哪三階？','構成要件該當性、違法性、有責性（罪責）。'],
+ ['pol','警察法第 2 條（警察任務）','警察任務為依法維持公共秩序，保護社會安全，防止一切危害，促進人民福利。'],
+ ['law','憲法第 7 條','中華民國人民，無分男女、宗教、種族、階級、黨派，在法律上一律平等。'],
+ ['law','憲法第 23 條（比例原則依據）','以上各條列舉之自由權利，除為防止妨礙他人自由、避免緊急危難、維持社會秩序，或增進公共利益所必要者外，不得以法律限制之。'],
+ ['cri','古典學派代表學者','貝加利亞（Beccaria）'],['cri','實證學派（天生犯罪人）代表學者','龍布羅梭（Lombroso）'],['cri','社會解組理論代表學者','蕭與馬凱（Shaw & McKay）'],['cri','緊張（迷亂）理論代表學者','墨頓（Merton）'],['cri','一般化緊張理論代表學者','安格紐（Agnew）'],['cri','差別接觸理論代表學者','蘇哲蘭（Sutherland）'],['cri','社會鍵（控制）理論代表學者','赫胥（Hirschi）'],['cri','低自我控制理論代表學者','蓋佛森與赫胥（Gottfredson & Hirschi）'],['cri','標籤理論代表學者','李瑪特、貝克（Lemert、Becker）'],['cri','日常活動理論代表學者','柯恩與費爾森（Cohen & Felson）'],['cri','理性選擇理論代表學者','康尼斯與克拉克（Cornish & Clarke）'],['cri','情境犯罪預防代表學者','克拉克（Clarke）'],['cri','破窗理論代表學者','威爾森與凱林（Wilson & Kelling）'],['cri','生命歷程理論代表學者','桑普森與勞布（Sampson & Laub）']
+];
+const LAW_ALIAS={'刑法':'中華民國刑法','憲法':'中華民國憲法','增修條文':'中華民國憲法增修條文','憲法增修條文':'中華民國憲法增修條文','社維法':'社會秩序維護法','警職法':'警察職權行使法','集遊法':'集會遊行法'};
+
+/* ================= 工具 ================= */
+const $=s=>document.querySelector(s);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today=()=>ymd(new Date());
+const parseD=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(s,n)=>{const d=parseD(s);d.setDate(d.getDate()+n);return ymd(d)};
+const diffDays=(a,b)=>Math.round((parseD(b)-parseD(a))/864e5);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtMin=m=>{m=Math.round(m);const h=Math.floor(m/60);return h?h+' 小時 '+(m%60)+' 分':m+' 分'};
+const hrs=m=>(m/60).toFixed(1);
+const weekStart=(s=today())=>{const d=parseD(s);const w=(d.getDay()+6)%7;d.setDate(d.getDate()-w);return ymd(d)};
+const subj=id=>S.subjects.find(x=>x.id===id)||SUBJECTS.find(x=>x.id===id)||{name:'(已刪除)',color:'#888'};
+const tag=id=>{const s=subj(id);return `<span class="tag" style="background:${s.color}">${esc(s.name)}</span>`};
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a};
+const LETTERS=['A','B','C','D'];
+
+/* ================= 狀態 ================= */
+let S,DATA={laws:null,exams:null,notes:null};
+function freshState(){
+  return{v:2,phases:PHASES.map(p=>({...p})),
+    subjects:SUBJECTS.map(s=>({id:s.id,name:s.name,type:s.type,color:s.color,chapters:s.ch.map(n=>({id:uid(),name:n,r:[false,false,false],note:''}))})),
+    sessions:[],cards:CARDS.map(c=>({id:uid(),subj:c[0],front:c[1],back:c[2],due:today(),iv:0,preset:true})),
+    mistakes:[],scores:[],settings:{focus:25,brk:5},
+    timer:{run:false,subj:'crim',mode:'normal',phase:'focus',start:0,acc:0},
+    qs:{},qstar:{},essay:{},lawStar:{},lastBackup:''};
+}
+function fill(){const f=freshState();for(const k in f){if(S[k]===undefined)S[k]=f[k];}}
+function load(){try{const raw=localStorage.getItem(KEY);S=raw?JSON.parse(raw):freshState();}catch(e){S=freshState();}fill();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){alert('儲存失敗：'+e.message);}}
+
+/* ================= 計算 ================= */
+function curPhase(d=today()){return S.phases.find(p=>d>=p.start&&d<=p.end)||null;}
+function nextPhase(d=today()){return S.phases.filter(p=>p.start>d).sort((a,b)=>a.start<b.start?-1:1)[0]||null;}
+function minutesBetween(a,b,sid){return S.sessions.filter(x=>x.date>=a&&x.date<=b&&(!sid||x.subj===sid)).reduce((t,x)=>t+x.min,0);}
+function weekMin(sid){const ws=weekStart();return minutesBetween(ws,addDays(ws,6),sid);}
+function streak(){const days=new Set(S.sessions.map(x=>x.date));Object.values(S.qs).forEach(q=>days.add(q.d));let d=today(),n=0;if(!days.has(d))d=addDays(d,-1);while(days.has(d)){n++;d=addDays(d,-1);}return n;}
+function lastStudy(){let m=S.sessions.reduce((m,x)=>x.date>m?x.date:m,'');Object.values(S.qs).forEach(q=>{if(q.d>m)m=q.d;});return m;}
+function subjProgress(s){const t=s.chapters.length*3;if(!t)return 0;let c=0;s.chapters.forEach(ch=>ch.r.forEach(v=>{if(v)c++;}));return c/t;}
+function dueCards(sid){const t=today();return S.cards.filter(c=>c.due<=t&&(!sid||c.subj===sid));}
+function examDate(name){const p=S.phases.find(p=>p.name===name);return p?p.start:null;}
+const MC=()=>DATA.exams?DATA.exams.mc:[];
+const QMAP={};
+function bankStats(sid){const qs=MC().filter(q=>!sid||q.s===sid);let done=0,c=0,t=0;qs.forEach(q=>{const r=S.qs[q.id];if(r){done++;c+=r.c;t+=r.t;}});return{total:qs.length,done,acc:t?c/t:null};}
+function isCorrect(q,ch){return q.a==='*'||q.a.includes(ch);}
+
+/* ================= 法條連結 ================= */
+let LAWRE=null,LAWIDX={};
+function buildLawIndex(){
+  if(!DATA.laws)return;
+  DATA.laws.laws.forEach((l,i)=>{const m={};l.arts.forEach(a=>{if(a.n)m[a.n]=a.t;});LAWIDX[l.name]={i,arts:m};});
+  const names=Object.keys(LAWIDX).concat(Object.keys(LAW_ALIAS)).sort((a,b)=>b.length-a.length).map(n=>n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
+  LAWRE=new RegExp('('+names.join('|')+')\\s*第\\s*(\\d+(?:\\s*-\\s*\\d+)?)\\s*條','g');
+}
+function lawName(n){return LAW_ALIAS[n]||n;}
+function linkify(text){
+  let h=esc(text);if(!LAWRE)return h;
+  return h.replace(LAWRE,(m,n,no)=>{const ln=lawName(n);no=no.replace(/\s/g,'');if(!LAWIDX[ln]||!LAWIDX[ln].arts[no])return m;return `<span class="lk" data-law="${esc(ln)}" data-no="${no}">${m}</span>`;});
+}
+document.addEventListener('click',e=>{const l=e.target.closest('[data-law][data-no]');if(l){e.stopPropagation();showArticle(l.dataset.law,l.dataset.no);}},true);
+function showArticle(name,no){
+  const L=LAWIDX[name];if(!L)return;const t=L.arts[no];const key=name+'|'+no;const star=S.lawStar[key];
+  openModal(`<div class="muted small">${esc(name)}</div><h3>第 ${esc(no)} 條</h3><div class="art"><div class="t">${esc(t)}</div></div>
+  <div class="row mt"><button class="btn ghost sm" id="as">${star?'★ 已收藏':'☆ 收藏'}</button><button class="btn ghost sm" id="ac">＋ 加入閃卡</button><span class="grow"></span><button class="btn sm" id="ao">看整部法規</button></div>
+  <div class="mt"><button class="btn ghost full" id="ax">關閉</button></div>`,el=>{
+    el.querySelector('#ax').onclick=closeModal;
+    el.querySelector('#as').onclick=()=>{if(S.lawStar[key])delete S.lawStar[key];else S.lawStar[key]=today();save();showArticle(name,no);};
+    el.querySelector('#ac').onclick=()=>{const l=DATA.laws.laws[L.i];S.cards.push({id:uid(),subj:l.subj,front:name.replace('中華民國','')+' 第 '+no+' 條',back:t,due:today(),iv:0});save();alert('已加入閃卡');};
+    el.querySelector('#ao').onclick=()=>{closeModal();go('law',{law:L.i,jump:no});};
+  });
+}
+
+/* ================= 導覽 ================= */
+const TABS=[['home','⌂','首頁'],['bank','✓','題庫'],['law','§','法條'],['note','✎','筆記'],['card','❐','閃卡'],['more','≡','更多']];
+const SUBPAGES={timer:'讀書計時',subj:'科目進度',miss:'錯題本',score:'成績紀錄',set:'設定'};
+let tab='home',param={},stack=[];
+function go(t,p={}){stack.push([tab,param]);tab=t;param=p;render();window.scrollTo(0,0);}
+function back(){const s=stack.pop();if(s){tab=s[0];param=s[1];}else{tab='home';param={};}render();window.scrollTo(0,0);}
+function renderNav(){const main=TABS.find(t=>t[0]===tab)?tab:(SUBPAGES[tab]?'more':tab);$('#nav').innerHTML=TABS.map(t=>`<button class="${main===t[0]?'on':''}" data-tab="${t[0]}"><span class="ic">${t[1]}</span>${t[2]}</button>`).join('');}
+$('#nav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;stack=[];tab=b.dataset.tab;param={};render();window.scrollTo(0,0);});
+$('#gear').onclick=()=>go('set');
+$('#backbtn').onclick=back;
+function render(){
+  renderNav();
+  const titles={home:'警考讀書',bank:'考古題庫',law:'法條',note:'重點筆記',card:'閃卡複習',more:'更多',...SUBPAGES};
+  $('#ttl').textContent=titles[tab]||'警考讀書';
+  const showBack=!!SUBPAGES[tab]||(tab==='bank'&&param.view)||(tab==='law'&&param.law!=null);
+  $('#backbtn').style.display=showBack?'':'none';
+  if(!DATA.exams&&['bank','law','note'].includes(tab)){$('#app').innerHTML='<div id="loading">資料載入中…</div>';return;}
+  ({home:Home,bank:Bank,law:Laws,note:Notes,card:Cards,more:More,timer:Timer,subj:Subjects,miss:Mistakes,score:Scores,set:Settings})[tab]();
+}
+function openModal(html,onMount){$('#modal').innerHTML=`<div class="modal"><div class="sheet">${html}</div></div>`;const m=$('#modal .modal');m.addEventListener('click',e=>{if(e.target===m)closeModal();});if(onMount)onMount($('#modal .sheet'));}
+function closeModal(){$('#modal').innerHTML='';}
+function chips(cur,ids,all=true){return `<div class="chips">${all?`<button data-f="" class="${cur===''?'on':''}">全部</button>`:''}${ids.map(id=>`<button data-f="${id}" class="${cur===id?'on':''}">${esc(subj(id).name)}</button>`).join('')}</div>`;}
+function bindChips(cb){$('#app').querySelectorAll('.chips [data-f]').forEach(b=>b.onclick=()=>cb(b.dataset.f));}
+
+/* ================= 首頁 ================= */
+function Home(){
+  const t=today(),trial=examDate('試考'),final=examDate('正式筆試'),ph=curPhase(),np=nextPhase();
+  const goal=ph?ph.hours:(np?np.hours:0),wm=weekMin(),pct=goal?Math.min(1,wm/60/goal):0;
+  const last=lastStudy(),gap=last?diffDays(last,t):null;
+  const sug=S.subjects.filter(s=>s.type==='專業').sort((a,b)=>weekMin(a.id)-weekMin(b.id))[0];
+  const due=dueCards().length,open=S.mistakes.filter(m=>!m.done).length,bs=bankStats();
+  const wrongQ=MC().filter(q=>S.qs[q.id]&&!S.qs[q.id].last).length;
+  let warn='';
+  if(gap===null)warn=`<div class="alert">還沒有任何讀書紀錄。先到「題庫」做 10 題，或到「更多 → 計時」開始讀。</div>`;
+  else if(gap>3)warn=`<div class="alert">已經 ${gap} 天沒有讀書了，今天至少做 10 題。</div>`;
+  const bk=S.lastBackup?diffDays(S.lastBackup,t):999;
+  $('#app').innerHTML=`${warn}
+  <div class="grid2 mb">
+    <div class="card" style="margin:0"><div class="muted">距離試考</div><div class="big">${trial?Math.max(0,diffDays(t,trial)):'—'}<span class="muted"> 天</span></div><div class="muted small">${trial||''}</div></div>
+    <div class="card" style="margin:0"><div class="muted">距離正式考</div><div class="big" style="color:var(--pri)">${final?Math.max(0,diffDays(t,final)):'—'}<span class="muted"> 天</span></div><div class="muted small">${final||''}</div></div>
+  </div>
+  <div class="card"><div class="row"><div class="grow"><div class="muted">目前階段</div><b>${ph?esc(ph.name):(np?'尚未開始（下一階段：'+esc(np.name)+'）':'所有階段已結束')}</b></div><div class="right"><div class="muted">連續讀書</div><b style="font-size:20px">${streak()} 天</b></div></div>
+    <div class="mt row"><div class="grow muted">本週讀書 ${hrs(wm)} / ${goal} 小時</div><b>${Math.round(pct*100)}%</b></div>
+    <div class="bar mt"><i style="width:${pct*100}%;background:${pct>=1?'var(--ok)':'var(--pri)'}"></i></div></div>
+  <div class="card"><h2>今日任務</h2><ul class="list">
+    <li class="row"><span class="grow">考古題練 10 題 <span class="muted small">（已做 ${bs.done}/${bs.total}）</span></span><button class="btn sm" data-act="q10">開始</button></li>
+    ${wrongQ?`<li class="row"><span class="grow">做錯的題目 <b>${wrongQ}</b> 題</span><button class="btn sm" data-act="wrong">重做</button></li>`:''}
+    <li class="row"><span class="grow">待複習閃卡 <b>${due}</b> 張</span><button class="btn sm ${due?'':'ghost'}" data-act="card">複習</button></li>
+    <li class="row"><span class="grow">建議讀：${sug?tag(sug.id):''} <span class="muted small">本週最少</span></span><button class="btn sm ghost" data-act="timer">計時</button></li>
+    ${open?`<li class="row"><span class="grow">未搞懂錯題 <b>${open}</b> 題</span><button class="btn sm ghost" data-act="miss">查看</button></li>`:''}
+  </ul></div>
+  <div class="card"><h2>考古題正確率</h2>${BANK_SUBJ.map(id=>{const st=bankStats(id);const a=st.acc;return `<div class="mb"><div class="row small"><span class="grow">${esc(subj(id).name)}</span><span class="muted">做過 ${st.done}/${st.total}・正確率 <b class="${a==null?'':a<0.5?'red':a>=0.65?'green':''}">${a==null?'—':Math.round(a*100)+'%'}</b></span></div><div class="bar"><i style="width:${st.done/st.total*100}%;background:${subj(id).color}"></i></div></div>`}).join('')}</div>
+  <div class="card"><h2>近 7 天讀書時數</h2>${weekChart()}</div>
+  ${bk>7?`<div class="card row"><span class="grow small">${S.lastBackup?'已經 '+bk+' 天沒備份':'還沒備份過資料'}，換手機或清除 Safari 會全部不見。</span><button class="btn sm" data-act="set">去備份</button></div>`:''}`;
+  $('#app').querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{const a=b.dataset.act;
+    if(a==='q10'){startPractice({subj:'',filter:'new',n:10});}
+    else if(a==='wrong'){startPractice({subj:'',filter:'wrong',n:999});}
+    else if(a==='timer'){if(sug&&!S.timer.run){S.timer.subj=sug.id;save();}go('timer');}
+    else go(a);});
+}
+function weekChart(){
+  const days=[];for(let i=6;i>=0;i--)days.push(addDays(today(),-i));
+  const vals=days.map(d=>minutesBetween(d,d)/60),max=Math.max(2,...vals),W=340,H=150,L=28,B=22,T=14,bw=(W-L-8)/7,wd='日一二三四五六';
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="近7天讀書時數">`;
+  [0,0.5,1].forEach(f=>{const y=H-B-(H-B-T)*f;s+=`<line x1="${L}" x2="${W-4}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${L-4}" y="${y+4}" font-size="10" text-anchor="end" fill="var(--sub)">${(max*f).toFixed(1)}</text>`;});
+  vals.forEach((v,i)=>{const h=(H-B-T)*v/max,x=L+i*bw+bw*0.2;s+=`<rect x="${x}" y="${H-B-h}" width="${bw*0.6}" height="${h}" rx="3" fill="var(--pri)"><title>${days[i]}：${v.toFixed(1)} 小時</title></rect><text x="${x+bw*0.3}" y="${H-6}" font-size="11" text-anchor="middle" fill="var(--sub)">${wd[parseD(days[i]).getDay()]}</text>`;if(v)s+=`<text x="${x+bw*0.3}" y="${H-B-h-3}" font-size="10" text-anchor="middle" fill="var(--ink)">${v.toFixed(1)}</text>`;});
+  return s+'</svg>';
+}
+
+/* ================= 題庫 ================= */
+let bankSubj='crim',QS=null;
+function Bank(){
+  if(param.view==='q')return QView();
+  if(param.view==='exam')return ExamView();
+  if(param.view==='essay')return EssayView();
+  if(param.view==='search')return QSearch();
+  const ex=DATA.exams,years=ex.years.slice().sort((a,b)=>b-a),st=bankStats(bankSubj);
+  const wrong=MC().filter(q=>q.s===bankSubj&&S.qs[q.id]&&!S.qs[q.id].last).length;
+  const starN=MC().filter(q=>q.s===bankSubj&&S.qstar[q.id]).length;
+  const yearRow=y=>{const qs=MC().filter(q=>q.s===bankSubj&&q.y===y);const d=qs.filter(q=>S.qs[q.id]).length;const sc=S.scores.filter(r=>r.year===y+'年考古題'&&r.s[bankSubj]!=null).map(r=>r.s[bankSubj]);const best=sc.length?Math.max(...sc):null;
+    return `<li class="row tap" data-year="${y}"><div class="grow"><b>${y} 年</b> <span class="muted small">選擇 ${qs.length} 題${ex.essay.some(e=>e.y===y&&e.s===bankSubj)?'＋申論 2 題':''}</span><div class="muted small">做過 ${d}/${qs.length}${best!=null?'・最高 '+best+' 分':''}</div></div><span class="btn sm">整份作答</span></li>`;};
+  $('#app').innerHTML=`${chips(bankSubj,BANK_SUBJ,false)}
+  <div class="card"><div class="row"><div class="grow"><b>${esc(subj(bankSubj).name)}</b><div class="muted small">${years[years.length-1]}–${years[0]} 年，共 ${st.total} 題選擇題</div></div><div class="right"><div class="muted small">正確率</div><b style="font-size:20px">${st.acc==null?'—':Math.round(st.acc*100)+'%'}</b></div></div>
+  <div class="bar mt"><i style="width:${st.done/st.total*100}%;background:${subj(bankSubj).color}"></i></div><div class="muted small mt">已做過 ${st.done} / ${st.total} 題</div></div>
+  <div class="card"><h2>練習</h2>
+    <div class="grid2"><button class="btn" data-p="new">沒做過的 10 題</button><button class="btn ghost" data-p="all">隨機 20 題</button>
+    <button class="btn ghost" data-p="wrong" ${wrong?'':'disabled'}>做錯的（${wrong}）</button><button class="btn ghost" data-p="star" ${starN?'':'disabled'}>收藏的（${starN}）</button></div>
+    <button class="btn ghost full mt" id="qsearch">🔍 搜尋題目關鍵字</button></div>
+  <div class="card"><h2>歷屆考古題（計時模擬考）</h2><ul class="list">${years.map(yearRow).join('')}</ul></div>
+  ${bankSubj!=='law'?`<div class="card"><h2>申論題（${ex.essay.filter(e=>e.s===bankSubj).length} 題）</h2><ul class="list">${ex.essay.filter(e=>e.s===bankSubj).sort((a,b)=>b.y-a.y||a.n-b.n).map(e=>`<li class="row tap" data-essay="${e.id}"><div class="grow"><div class="muted small">${e.y} 年 第 ${e.n} 題 ${S.essay[e.id]&&S.essay[e.id].done?'<span class="green">✓ 已練習</span>':''}</div><div style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(e.q)}</div></div><span class="muted">›</span></li>`).join('')}</ul></div>`:'<div class="muted small mb">法學知識全部是選擇題，沒有申論題。</div>'}
+  <div class="muted small">試題來源：考選部考畢試題，答案為考選部公布之標準答案（含更正）。「一律給分」的題目選任何選項都算對。</div>`;
+  bindChips(f=>{bankSubj=f;Bank();});
+  $('#app').querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>startPractice({subj:bankSubj,filter:b.dataset.p,n:b.dataset.p==='all'?20:b.dataset.p==='new'?10:999}));
+  $('#app').querySelectorAll('[data-year]').forEach(l=>l.onclick=()=>startExam(bankSubj,+l.dataset.year));
+  $('#app').querySelectorAll('[data-essay]').forEach(l=>l.onclick=()=>go('bank',{view:'essay',id:l.dataset.essay}));
+  $('#qsearch').onclick=()=>go('bank',{view:'search',q:''});
+}
+function startPractice({subj:sid,filter,n}){
+  let qs=MC().filter(q=>!sid||q.s===sid);
+  if(filter==='new')qs=qs.filter(q=>!S.qs[q.id]);
+  if(filter==='wrong')qs=qs.filter(q=>S.qs[q.id]&&!S.qs[q.id].last);
+  if(filter==='star')qs=qs.filter(q=>S.qstar[q.id]);
+  if(!qs.length){alert(filter==='new'?'這科的題目都做過了，改用隨機練習吧！':'沒有符合的題目');return;}
+  QS={mode:'practice',ids:shuffle(qs).slice(0,n).map(q=>q.id),i:0,ans:{},title:filter==='wrong'?'錯題重做':filter==='star'?'收藏題':'練習'};
+  go('bank',{view:'q'});
+}
+function qById(id){return QMAP[id];}
+function recordAnswer(q,ch){
+  const ok=isCorrect(q,ch),r=S.qs[q.id]||{t:0,c:0};r.t++;if(ok)r.c++;r.last=ok;r.d=today();r.ch=ch;S.qs[q.id]=r;
+  if(!ok){let m=S.mistakes.find(x=>x.qid===q.id);
+    const optText=q.o.map((o,i)=>LETTERS[i]+'. '+o).join('\n');
+    if(m){m.mine=ch;m.done=false;m.date=today();m.cnt=(m.cnt||1)+1;}
+    else S.mistakes.push({id:uid(),qid:q.id,date:today(),subj:q.s,src:q.y+' 年考古題 第 '+q.n+' 題',q:q.q+'\n\n'+optText,mine:ch,ans:q.a==='*'?'一律給分':q.a,why:'',done:false,cnt:1});
+  }else{const m=S.mistakes.find(x=>x.qid===q.id);if(m&&!m.done&&r.c>=2)m.done=true;}
+  save();return ok;
+}
+function QView(){
+  if(!QS||!QS.ids.length){back();return;}
+  if(QS.i>=QS.ids.length){
+    const ok=QS.ids.filter(id=>QS.ans[id]&&isCorrect(qById(id),QS.ans[id])).length;
+    $('#app').innerHTML=`<div class="card" style="text-align:center"><div class="muted">${esc(QS.title)}完成</div><div class="big mt">${ok} / ${QS.ids.length}</div><div class="muted">正確率 ${Math.round(ok/QS.ids.length*100)}%</div>
+    <div class="qgrid mt">${QS.ids.map((id,i)=>`<button class="${isCorrect(qById(id),QS.ans[id]||'')?'r':'w'}" data-i="${i}">${i+1}</button>`).join('')}</div>
+    <div class="grid2 mt"><button class="btn ghost" id="again">再練一組</button><button class="btn" id="fin">回題庫</button></div></div>`;
+    $('#app').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{QS.i=+b.dataset.i;QView();});
+    $('#fin').onclick=()=>{QS=null;back();};
+    $('#again').onclick=()=>{const s=qById(QS.ids[0]).s;QS=null;stack.pop();tab='bank';param={};startPractice({subj:s,filter:'all',n:20});};
+    return;
+  }
+  const q=qById(QS.ids[QS.i]),ans=QS.ans[q.id],r=S.qs[q.id];
+  $('#app').innerHTML=`<div class="row mb"><span class="muted small grow">${esc(QS.title)}　${QS.i+1} / ${QS.ids.length}</span><button class="btn ghost sm" id="star">${S.qstar[q.id]?'★':'☆'}</button></div>
+  <div class="bar mb"><i style="width:${(QS.i)/QS.ids.length*100}%"></i></div>
+  <div class="card"><div class="row mb">${tag(q.s)}<span class="muted small grow">${q.y} 年 第 ${q.n} 題</span>${r?`<span class="muted small">做過 ${r.t} 次・對 ${r.c} 次</span>`:''}</div>
+  <div class="qtext">${ans?linkify(q.q):esc(q.q)}</div>
+  ${q.o.map((o,i)=>{const L=LETTERS[i];let cls='';if(ans){if(isCorrect(q,L)&&q.a!=='*')cls='right';else if(L===ans)cls=isCorrect(q,L)?'right':'wrong';}return `<button class="opt ${cls}" data-o="${L}" ${ans?'disabled':''}><b>${L}</b><span>${ans?linkify(o):esc(o)}</span></button>`;}).join('')}
+  ${ans?`<div class="mt ${isCorrect(q,ans)?'green':'red'}"><b>${isCorrect(q,ans)?'答對了！':'答錯了'}</b>　標準答案：${q.a==='*'?'一律給分':q.a}</div>${DATA.exams.notes&&DATA.exams.notes[q.y+'-'+q.s]&&q.a.length!==1?`<div class="muted small">更正說明：${esc(DATA.exams.notes[q.y+'-'+q.s])}</div>`:''}
+  <div class="muted small mt">底線的法條可以點開看原文。${isCorrect(q,ans)?'':'這題已自動加入錯題本。'}</div>`:''}
+  </div>
+  <div class="row">${QS.i>0?'<button class="btn ghost" id="prev">‹ 上一題</button>':''}<span class="grow"></span>${ans?`<button class="btn ghost sm" id="mkcard">做成閃卡</button><button class="btn" id="next">${QS.i+1<QS.ids.length?'下一題 ›':'看結果'}</button>`:'<button class="btn ghost" id="skip">跳過</button>'}</div>`;
+  $('#app').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{QS.ans[q.id]=b.dataset.o;recordAnswer(q,b.dataset.o);QView();});
+  const on=(id,f)=>{const e=$('#'+id);if(e)e.onclick=f;};
+  on('next',()=>{QS.i++;QView();window.scrollTo(0,0);});on('skip',()=>{QS.i++;QView();window.scrollTo(0,0);});on('prev',()=>{QS.i--;QView();window.scrollTo(0,0);});
+  on('star',()=>{if(S.qstar[q.id])delete S.qstar[q.id];else S.qstar[q.id]=today();save();QView();});
+  on('mkcard',()=>editCard(null,{subj:q.s,front:q.q+'\n\n'+q.o.map((o,i)=>LETTERS[i]+'. '+o).join('\n'),back:'答案：'+(q.a==='*'?'一律給分':q.a+'. '+(q.o[LETTERS.indexOf(q.a[0])]||''))}));
+}
+/* 整份模擬考 */
+let EXAM=null,examTick=null;
+function startExam(sid,y){
+  const qs=MC().filter(q=>q.s===sid&&q.y===y).sort((a,b)=>a.n-b.n);
+  EXAM={sid,y,ids:qs.map(q=>q.id),ans:{},start:Date.now(),done:false};go('bank',{view:'exam'});
+}
+function ExamView(){
+  if(!EXAM){back();return;}
+  const qs=EXAM.ids.map(qById),per=EXAM.sid==='law'?2:2;
+  let score=0;if(EXAM.done)qs.forEach(q=>{if(EXAM.ans[q.id]&&isCorrect(q,EXAM.ans[q.id]))score+=per;});
+  const full=qs.length*per,essayN=DATA.exams.essay.filter(e=>e.y===EXAM.y&&e.s===EXAM.sid).length;
+  $('#app').innerHTML=`<div class="card"><div class="row"><div class="grow">${tag(EXAM.sid)} <b>${EXAM.y} 年考古題</b><div class="muted small">選擇題 ${qs.length} 題，每題 ${per} 分${essayN?'（申論題另外練習）':''}</div></div><div class="right"><div class="muted small">${EXAM.done?'得分':'經過時間'}</div><b style="font-size:22px" id="etime">${EXAM.done?score+' / '+full:''}</b></div></div>
+  ${EXAM.done?`<div class="mt muted small">換算百分比 <b>${Math.round(score/full*100)}</b> 分，已記錄到「成績」。錯的題目已加入錯題本。</div>`:''}
+  <div class="qgrid mt">${qs.map((q,i)=>{const a=EXAM.ans[q.id];let c=a?'done':'';if(EXAM.done)c=a&&isCorrect(q,a)?'r':'w';return `<button class="${c}" data-j="${i}">${i+1}</button>`;}).join('')}</div></div>
+  ${qs.map((q,i)=>{const a=EXAM.ans[q.id];return `<div class="card" id="eq${i}"><div class="muted small mb">第 ${q.n} 題</div><div class="qtext">${EXAM.done?linkify(q.q):esc(q.q)}</div>
+    ${q.o.map((o,k)=>{const L=LETTERS[k];let cls=a===L?'sel':'';if(EXAM.done){cls='';if(isCorrect(q,L)&&q.a!=='*')cls='right';else if(a===L)cls=isCorrect(q,L)?'right':'wrong';}return `<button class="opt ${cls}" data-q="${q.id}" data-o="${L}" ${EXAM.done?'disabled':''}><b>${L}</b><span>${EXAM.done?linkify(o):esc(o)}</span></button>`;}).join('')}
+    ${EXAM.done?`<div class="small ${a&&isCorrect(q,a)?'green':'red'}">${a?'你選 '+a+'，':'未作答，'}標準答案 ${q.a==='*'?'一律給分':q.a}</div>`:''}</div>`;}).join('')}
+  ${EXAM.done?'<button class="btn full" id="eback">回題庫</button>':'<button class="btn ok full" id="esub">交卷</button>'}`;
+  $('#app').querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>document.getElementById('eq'+b.dataset.j).scrollIntoView({behavior:'smooth',block:'start'}));
+  if(!EXAM.done){
+    $('#app').querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{EXAM.ans[b.dataset.q]=b.dataset.o;b.parentNode.querySelectorAll('.opt').forEach(x=>x.classList.toggle('sel',x===b));const i=EXAM.ids.indexOf(b.dataset.q);$('#app').querySelector(`[data-j="${i}"]`).className='done';});
+    $('#esub').onclick=()=>{const left=qs.filter(q=>!EXAM.ans[q.id]).length;if(left&&!confirm(`還有 ${left} 題沒作答，確定交卷？`))return;
+      EXAM.done=true;let sc=0;qs.forEach(q=>{const a=EXAM.ans[q.id];if(a){if(recordAnswer(q,a))sc+=per;}else{recordAnswer(q,'');}});
+      const pct=Math.round(sc/full*100);S.scores.push({id:uid(),date:today(),type:'考古題',year:EXAM.y+'年考古題',s:{[EXAM.sid]:pct},auto:true});
+      const min=Math.round((Date.now()-EXAM.start)/60000);if(min>=1)S.sessions.push({id:uid(),date:today(),subj:EXAM.sid,min:Math.min(min,180)});
+      save();clearInterval(examTick);ExamView();window.scrollTo(0,0);};
+    clearInterval(examTick);const upd=()=>{const e=$('#etime');if(!e||!EXAM||EXAM.done){clearInterval(examTick);return;}const s=Math.floor((Date.now()-EXAM.start)/1000);e.textContent=pad(Math.floor(s/60))+':'+pad(s%60);};upd();examTick=setInterval(upd,1000);
+  }else $('#eback').onclick=()=>{EXAM=null;back();};
+}
+/* 申論題 */
+function EssayView(){
+  const e=DATA.exams.essay.find(x=>x.id===param.id);if(!e){back();return;}
+  const st=S.essay[e.id]||{txt:'',done:false};
+  const frame=e.s==='crim'?'crim':e.s==='pol'?'pol':'cri';
+  $('#app').innerHTML=`<div class="card"><div class="row mb">${tag(e.s)}<span class="muted small grow">${e.y} 年 申論題 第 ${e.n} 題</span></div><div class="qtext">${linkify(e.q)}</div></div>
+  <div class="card"><h2>我的答案</h2><textarea id="etxt" style="min-height:260px" placeholder="先自己寫，寫完再對照講義或筆記。&#10;刑法題照「構成要件→違法性→罪責→結論」寫。">${esc(st.txt)}</textarea>
+  <div class="row mt"><label style="display:flex;align-items:center;gap:6px;margin:0;color:var(--ink)" class="grow"><input type="checkbox" id="edone" style="width:auto" ${st.done?'checked':''}>已練習完</label><span class="muted small" id="esaved"></span></div></div>
+  <div class="card"><h2>參考</h2><ul class="list">
+    ${e.s==='crim'?'<li class="tap lk" data-note="申論題答題架構（三階層爆破法）">刑法申論題答題架構</li>':''}
+    <li class="tap lk" data-notesubj="${e.s}">${esc(subj(e.s).name)}重點筆記</li>
+    <li class="muted small">補習班詳解有著作權不能放進來；寫完可以把答案貼給 Claude 幫你改。</li></ul></div>`;
+  const t=$('#etxt');let tm;t.oninput=()=>{clearTimeout(tm);tm=setTimeout(()=>{S.essay[e.id]={...(S.essay[e.id]||{}),txt:t.value,done:$('#edone').checked};save();$('#esaved').textContent='已儲存';},500);};
+  $('#edone').onchange=()=>{S.essay[e.id]={txt:t.value,done:$('#edone').checked};save();$('#esaved').textContent='已儲存';};
+  $('#app').querySelectorAll('[data-note]').forEach(l=>l.onclick=()=>{noteSubj='crim';noteOpen=l.dataset.note;go('note');});
+  $('#app').querySelectorAll('[data-notesubj]').forEach(l=>l.onclick=()=>{noteSubj=l.dataset.notesubj;noteOpen='';go('note');});
+}
+function QSearch(){
+  const q=param.q||'';
+  const res=q.length>=2?MC().filter(x=>(x.q+x.o.join('')).includes(q)).slice(0,60):[];
+  $('#app').innerHTML=`<input id="qs" placeholder="輸入關鍵字，例如：管束、正當防衛、Merton" value="${esc(q)}" class="mb">
+  <div class="muted small mb">${q.length<2?'至少輸入 2 個字':`找到 ${res.length}${res.length===60?'+':''} 題`}</div>
+  ${res.map(x=>`<div class="card tap" data-id="${x.id}"><div class="row mb">${tag(x.s)}<span class="muted small">${x.y} 年 第 ${x.n} 題</span></div><div class="small">${esc(x.q).split(esc(q)).join('<mark>'+esc(q)+'</mark>')}</div></div>`).join('')}
+  ${res.length?'<button class="btn full" id="doall">把這些題目全部練一次</button>':''}`;
+  const i=$('#qs');let tm;i.oninput=()=>{clearTimeout(tm);tm=setTimeout(()=>{param.q=i.value;const pos=i.selectionStart;QSearch();const n=$('#qs');n.focus();n.setSelectionRange(pos,pos);},350);};
+  $('#app').querySelectorAll('[data-id]').forEach(c=>c.onclick=()=>{QS={mode:'practice',ids:[c.dataset.id],i:0,ans:{},title:'搜尋結果'};go('bank',{view:'q'});});
+  const d=$('#doall');if(d)d.onclick=()=>{QS={mode:'practice',ids:res.map(x=>x.id),i:0,ans:{},title:'搜尋：'+q};go('bank',{view:'q'});};
+  if(!q)i.focus();
+}
+
+/* ================= 法條 ================= */
+let lawSubj='',lawQ='';
+function Laws(){
+  if(param.law!=null)return LawView();
+  const D=DATA.laws;const names={crim:'刑法',pol:'警察法規',law:'法學知識'};
+  let body='';
+  if(lawQ.length>=1){
+    const m=lawQ.match(/^(.+?)\s*(?:第)?\s*(\d+(?:-\d+)?)\s*條?$/);
+    const res=[];
+    if(m){const ln=Object.keys(LAWIDX).find(n=>n.includes(m[1])||(LAW_ALIAS[m[1]]===n));if(ln&&LAWIDX[ln].arts[m[2]])res.push({ln,no:m[2],t:LAWIDX[ln].arts[m[2]]});}
+    if(lawQ.length>=2)for(const l of D.laws){for(const a of l.arts){if(a.n&&a.t.includes(lawQ)){res.push({ln:l.name,no:a.n,t:a.t});if(res.length>=80)break;}}if(res.length>=80)break;}
+    body=`<div class="muted small mb">找到 ${res.length}${res.length>=80?'+':''} 條</div>`+res.map(r=>{const i=r.t.indexOf(lawQ);const sn=i>30?'…'+r.t.slice(i-30,i+70):r.t.slice(0,100);return `<div class="card tap" data-law="${esc(r.ln)}" data-no="${r.no}"><b class="small">${esc(r.ln)} 第 ${r.no} 條</b><div class="small">${esc(sn).split(esc(lawQ)).join('<mark>'+esc(lawQ)+'</mark>')}</div></div>`;}).join('');
+  }else{
+    const stars=Object.keys(S.lawStar);
+    body=(stars.length?`<div class="card"><h2>★ 收藏的條文（${stars.length}）</h2><ul class="list">${stars.map(k=>{const [n,no]=k.split('|');return `<li class="tap small" data-law="${esc(n)}" data-no="${no}">${esc(n.replace('中華民國',''))} 第 ${no} 條</li>`}).join('')}</ul></div>`:'')+
+    ['crim','pol','law'].filter(s=>!lawSubj||s===lawSubj).map(s=>`<div class="card"><h2>${tag(s)} ${names[s]}</h2><ul class="list">${D.laws.map((l,i)=>[l,i]).filter(([l])=>l.subj===s).map(([l,i])=>`<li class="row tap" data-open="${i}"><div class="grow"><b>${esc(l.name)}</b><div class="muted small">${l.arts.filter(a=>a.n).length} 條・<span style="color:${l.imp.includes('命題')||l.imp==='核心'?'var(--pri)':'var(--sub)'}">${esc(l.imp)}</span>・最後修正 ${l.mod.slice(0,4)}/${l.mod.slice(4,6)}/${l.mod.slice(6,8)}</div></div><span class="muted">›</span></li>`).join('')}</ul></div>`).join('')+
+    `<div class="card small muted">犯罪學沒有專屬法規，請看「筆記」。<br>資料來源：${esc(D.source)}，更新於 ${esc(D.updated)}。條文以全國法規資料庫為準。</div>`;
+  }
+  $('#app').innerHTML=`<input id="lq" placeholder="搜尋條文內容，或輸入「刑法 271」直接跳條" value="${esc(lawQ)}" class="mb">${lawQ?'':chips(lawSubj,['crim','pol','law'])}${body}`;
+  const i=$('#lq');let tm;i.oninput=()=>{clearTimeout(tm);tm=setTimeout(()=>{lawQ=i.value.trim();const pos=i.selectionStart;Laws();const n=$('#lq');n.focus();n.setSelectionRange(pos,pos);},350);};
+  bindChips(f=>{lawSubj=f;Laws();});
+  $('#app').querySelectorAll('[data-open]').forEach(l=>l.onclick=()=>go('law',{law:+l.dataset.open}));
+}
+function LawView(){
+  const l=DATA.laws.laws[param.law];const f=param.f||'';
+  const arts=l.arts.filter(a=>!f||a.h||(a.t&&a.t.includes(f))||a.n===f);
+  $('#app').innerHTML=`<div class="card"><b style="font-size:17px">${esc(l.name)}</b><div class="muted small">${l.arts.filter(a=>a.n).length} 條・${esc(l.imp)}・最後修正 ${l.mod.slice(0,4)}/${l.mod.slice(4,6)}/${l.mod.slice(6,8)}</div>
+  <div class="row mt"><input id="lf" placeholder="在這部法規裡搜尋，或輸入條號" value="${esc(f)}"><a class="btn ghost sm" href="${esc(l.url)}" target="_blank" rel="noopener">官網</a></div></div>
+  <div class="card" id="arts">${arts.map(a=>a.h?(f?'':`<div class="chap">${esc(a.h)}</div>`):`<div class="art" id="a-${a.n}"><div class="row"><span class="no grow">第 ${a.n} 條</span><button class="btn ghost sm" data-star="${a.n}">${S.lawStar[l.name+'|'+a.n]?'★':'☆'}</button><button class="btn ghost sm" data-card="${a.n}">＋卡</button></div><div class="t">${f&&a.t.includes(f)?esc(a.t).split(esc(f)).join('<mark>'+esc(f)+'</mark>'):esc(a.t)}</div></div>`).join('')||'<div class="empty">沒有符合的條文</div>'}</div>`;
+  const i=$('#lf');let tm;i.oninput=()=>{clearTimeout(tm);tm=setTimeout(()=>{param.f=i.value.trim();const pos=i.selectionStart;LawView();const n=$('#lf');n.focus();n.setSelectionRange(pos,pos);},400);};
+  $('#arts').querySelectorAll('[data-star]').forEach(b=>b.onclick=()=>{const k=l.name+'|'+b.dataset.star;if(S.lawStar[k])delete S.lawStar[k];else S.lawStar[k]=today();save();b.textContent=S.lawStar[k]?'★':'☆';});
+  $('#arts').querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>{const no=b.dataset.card;S.cards.push({id:uid(),subj:l.subj,front:l.name.replace('中華民國','')+' 第 '+no+' 條',back:LAWIDX[l.name].arts[no],due:today(),iv:0});save();b.textContent='✓';});
+  if(param.jump){const el=document.getElementById('a-'+param.jump);if(el)setTimeout(()=>{el.scrollIntoView({block:'start'});window.scrollBy(0,-70);el.style.background='var(--pri-soft)';},50);param.jump=null;}
+}
+
+/* ================= 筆記 ================= */
+let noteSubj='crim',noteOpen='';
+function Notes(){
+  const ns=DATA.notes.filter(n=>n.s===noteSubj);
+  $('#app').innerHTML=`${chips(noteSubj,['crim','pol','cri','law'],false)}
+  ${ns.map(n=>`<div class="card"><div class="row tap" data-t="${esc(n.t)}"><b class="grow">${esc(n.t)}</b><span class="muted">${noteOpen===n.t?'▾':'▸'}</span></div>${noteOpen===n.t?`<div class="note mt">${renderNote(n.b)}</div>`:''}</div>`).join('')}
+  <div class="card small muted">筆記是 Claude 依法條原文與常見教材整理的重點，條號都已對照全國法規資料庫；理論細節以你的講義為準。底線的法條可以點開看原文。<br>國文、英文請用你自己的高職教材。</div>`;
+  bindChips(f=>{noteSubj=f;noteOpen='';Notes();});
+  $('#app').querySelectorAll('[data-t]').forEach(r=>r.onclick=()=>{noteOpen=noteOpen===r.dataset.t?'':r.dataset.t;Notes();});
+  if(noteOpen){const el=[...$('#app').querySelectorAll('[data-t]')].find(x=>x.dataset.t===noteOpen);if(el)el.scrollIntoView({block:'start'});}
+}
+function renderNote(lines){let h='',inList=false;
+  for(const l of lines){if(!l.trim())continue;
+    if(l.startsWith('- ')){if(!inList){h+='<ul>';inList=true;}h+='<li>'+linkify(l.slice(2))+'</li>';continue;}
+    if(inList){h+='</ul>';inList=false;}
+    if(l.startsWith('## '))h+='<h4>'+esc(l.slice(3))+'</h4>';else h+='<p>'+linkify(l)+'</p>';}
+  if(inList)h+='</ul>';return h;}
+
+/* ================= 更多 ================= */
+function More(){
+  const open=S.mistakes.filter(m=>!m.done).length;
+  $('#app').innerHTML=`<div class="card"><ul class="list menu">
+   <li class="tap" data-go="timer"><span class="ic">◷</span><span class="grow">讀書計時</span><span class="muted small">本週 ${hrs(weekMin())} 小時</span></li>
+   <li class="tap" data-go="subj"><span class="ic">☰</span><span class="grow">科目章節進度</span></li>
+   <li class="tap" data-go="miss"><span class="ic">✗</span><span class="grow">錯題本</span><span class="muted small">${open} 題未搞懂</span></li>
+   <li class="tap" data-go="score"><span class="ic">▲</span><span class="grow">成績紀錄</span></li>
+   <li class="tap" data-go="set"><span class="ic">⚙︎</span><span class="grow">設定、備份、考試資訊</span></li></ul></div>`;
+  $('#app').querySelectorAll('[data-go]').forEach(l=>l.onclick=()=>go(l.dataset.go));
+}
+
+/* ================= 計時 ================= */
+let tick=null;
+function elapsed(){const t=S.timer;return t.acc+(t.run?Date.now()-t.start:0);}
+function logSession(sid,min){if(min<1)return;S.sessions.push({id:uid(),date:today(),subj:sid,min:Math.round(min)});}
+function Timer(){
+  const t=S.timer,opts=S.subjects.map(s=>`<option value="${s.id}" ${t.subj===s.id?'selected':''}>${esc(s.name)}</option>`).join('');
+  const todayList=S.subjects.map(s=>({s,m:minutesBetween(today(),today(),s.id)})).filter(x=>x.m>0),recent=S.sessions.slice(-8).reverse();
+  $('#app').innerHTML=`<div class="card"><div class="seg mb"><button data-mode="normal" class="${t.mode==='normal'?'on':''}">一般計時</button><button data-mode="pomo" class="${t.mode==='pomo'?'on':''}">番茄鐘 ${S.settings.focus}+${S.settings.brk}</button></div>
+    <label>科目</label><select id="tsubj" ${t.run||t.acc?'disabled':''}>${opts}</select>
+    <div class="muted mt" id="tphase" style="text-align:center"></div><div class="timer" id="tclock">00:00</div><div class="row" style="justify-content:center;gap:8px" id="tbtns"></div></div>
+  <div class="card"><h2>今天</h2>${todayList.length?todayList.map(x=>`<div class="row mb">${tag(x.s.id)}<span class="grow"></span><b>${fmtMin(x.m)}</b></div>`).join(''):'<div class="muted">今天還沒有紀錄</div>'}</div>
+  <div class="card"><h2>近 7 天</h2>${weekChart()}</div>
+  <div class="card"><div class="row"><h2 class="grow" style="margin:0">最近紀錄</h2><button class="btn sm ghost" id="addman">＋ 手動補登</button></div>
+    <ul class="list mt">${recent.length?recent.map(r=>`<li class="row"><span class="muted small" style="width:84px">${r.date}</span>${tag(r.subj)}<span class="grow"></span><b class="small">${fmtMin(r.min)}</b><button class="btn sm ghost" data-del="${r.id}">刪</button></li>`).join(''):'<li class="muted">還沒有紀錄</li>'}</ul></div>`;
+  $('#tsubj').onchange=e=>{t.subj=e.target.value;save();};
+  $('#app').querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{if(t.run||t.acc){alert('請先結束目前的計時');return;}t.mode=b.dataset.mode;t.phase='focus';save();Timer();});
+  $('#app').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{if(confirm('刪除這筆紀錄？')){S.sessions=S.sessions.filter(x=>x.id!==b.dataset.del);save();Timer();}});
+  $('#addman').onclick=manualAdd;drawButtons();updateClock();
+  clearInterval(tick);tick=setInterval(()=>{if(tab!=='timer'){clearInterval(tick);return;}updateClock();},500);
+}
+function drawButtons(){
+  const t=S.timer,b=$('#tbtns');if(!b)return;
+  if(t.run)b.innerHTML=`<button class="btn ghost" id="tpause">暫停</button><button class="btn ok" id="tstop">結束並記錄</button>`;
+  else if(t.acc)b.innerHTML=`<button class="btn" id="tstart">繼續</button><button class="btn ok" id="tstop">結束並記錄</button><button class="btn bad" id="tdrop">放棄</button>`;
+  else b.innerHTML=`<button class="btn" id="tstart" style="padding:12px 40px;font-size:17px">開始</button>`;
+  const on=(id,f)=>{const e=$('#'+id);if(e)e.onclick=f;};
+  on('tstart',()=>{t.run=true;t.start=Date.now();save();drawButtons();$('#tsubj').disabled=true;});
+  on('tpause',()=>{t.acc=elapsed();t.run=false;save();drawButtons();});
+  on('tstop',()=>{const ms=elapsed();if(t.mode!=='pomo'||t.phase==='focus')logSession(t.subj,ms/60000);resetTimer();save();Timer();});
+  on('tdrop',()=>{if(confirm('放棄這段時間，不記錄？')){resetTimer();save();Timer();}});
+}
+function resetTimer(){const t=S.timer;t.run=false;t.acc=0;t.start=0;t.phase='focus';}
+function updateClock(){
+  const t=S.timer,c=$('#tclock');if(!c)return;let ms=elapsed();const ph=$('#tphase');
+  if(t.mode==='pomo'){const len=(t.phase==='focus'?S.settings.focus:S.settings.brk)*60000;let rem=len-ms;
+    if(rem<=0&&t.run){if(t.phase==='focus'){logSession(t.subj,S.settings.focus);t.phase='break';buzz('專注結束，休息一下！');}else{t.phase='focus';buzz('休息結束，開始下一輪！');}t.acc=0;t.start=Date.now();save();rem=(t.phase==='focus'?S.settings.focus:S.settings.brk)*60000;}
+    ms=Math.max(0,rem);ph.textContent=t.phase==='focus'?'專注中':'休息中（不計入讀書時數）';}
+  else ph.textContent=t.run?'計時中':(t.acc?'已暫停':'');
+  const s=Math.floor(ms/1000),h=Math.floor(s/3600);c.textContent=(h?h+':':'')+pad(Math.floor(s/60)%60)+':'+pad(s%60);
+}
+function buzz(msg){try{navigator.vibrate&&navigator.vibrate([300,150,300]);}catch(e){}try{const a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator();o.connect(a.destination);o.frequency.value=880;o.start();setTimeout(()=>{o.stop();a.close();},400);}catch(e){}setTimeout(()=>alert(msg),50);}
+function manualAdd(){
+  openModal(`<h3>手動補登</h3><label>日期</label><input type="date" id="md" value="${today()}"><label>科目</label><select id="ms">${S.subjects.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select><label>分鐘數</label><input type="number" id="mm" inputmode="numeric" min="1" value="30">
+  <div class="row mt"><button class="btn ghost grow" id="mc">取消</button><button class="btn grow" id="mo">儲存</button></div>`,el=>{
+    el.querySelector('#mc').onclick=closeModal;
+    el.querySelector('#mo').onclick=()=>{const m=+el.querySelector('#mm').value,d=el.querySelector('#md').value;if(!m||m<1||!d){alert('請填日期和分鐘數');return;}S.sessions.push({id:uid(),date:d,subj:el.querySelector('#ms').value,min:Math.round(m)});save();closeModal();Timer();};});
+}
+
+/* ================= 科目 ================= */
+let openSubj=null;
+function Subjects(){
+  if(openSubj)return SubjectDetail();
+  $('#app').innerHTML=S.subjects.map(s=>{const p=subjProgress(s),tot=minutesBetween('0000-00-00','9999-99-99',s.id);
+    return `<div class="card tap" data-open="${s.id}" style="border-left:5px solid ${s.color}"><div class="row"><b class="grow">${esc(s.name)}</b><span class="muted small">${s.type}科目</span></div>
+    <div class="row muted small mt"><span class="grow">章節 ${s.chapters.length}・累計 ${hrs(tot)} 小時</span><b style="color:${s.color}">${Math.round(p*100)}%</b></div><div class="bar mt"><i style="width:${p*100}%;background:${s.color}"></i></div></div>`}).join('')
+    +`<div class="muted small">每章三個勾選：第 1、2、3 輪。章節可以改成跟你的講義目錄一樣。</div>`;
+  $('#app').querySelectorAll('[data-open]').forEach(c=>c.onclick=()=>{openSubj=c.dataset.open;Subjects();window.scrollTo(0,0);});
+}
+function SubjectDetail(){
+  const s=S.subjects.find(x=>x.id===openSubj);if(!s){openSubj=null;return Subjects();}const p=subjProgress(s);
+  $('#app').innerHTML=`<button class="btn ghost sm mb" id="bk">‹ 返回科目</button>
+  <div class="card" style="border-left:5px solid ${s.color}"><div class="row"><b class="grow" style="font-size:18px">${esc(s.name)}</b><b style="color:${s.color}">${Math.round(p*100)}%</b></div><div class="bar mt"><i style="width:${p*100}%;background:${s.color}"></i></div></div>
+  <div class="card"><ul class="list">${s.chapters.map((c,i)=>`<li><div class="row"><span class="grow">${i+1}. ${esc(c.name)}</span><button class="btn sm ghost" data-edit="${c.id}">⋯</button></div>
+    <div class="chk mt">${[0,1,2].map(k=>`<label><input type="checkbox" data-c="${c.id}" data-k="${k}" ${c.r[k]?'checked':''}>第${k+1}輪</label>`).join('')}${c.note?'<span class="muted small" style="align-self:center">📝 有筆記</span>':''}</div></li>`).join('')}</ul>
+  <button class="btn ghost full mt" id="addch">＋ 新增章節</button></div>`;
+  $('#bk').onclick=()=>{openSubj=null;Subjects();};
+  $('#app').querySelectorAll('[data-c]').forEach(b=>b.onchange=()=>{s.chapters.find(x=>x.id===b.dataset.c).r[+b.dataset.k]=b.checked;save();SubjectDetail();});
+  $('#addch').onclick=()=>{const n=prompt('章節名稱');if(n&&n.trim()){s.chapters.push({id:uid(),name:n.trim(),r:[false,false,false],note:''});save();SubjectDetail();}};
+  $('#app').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editChapter(s,b.dataset.edit));
+}
+function editChapter(s,cid){
+  const i=s.chapters.findIndex(x=>x.id===cid),c=s.chapters[i];
+  openModal(`<h3>編輯章節</h3><label>名稱</label><input id="en" value="${esc(c.name)}"><label>筆記</label><textarea id="et" placeholder="重點、易錯處、頁碼…">${esc(c.note)}</textarea>
+  <div class="row mt"><button class="btn ghost sm" id="eu" ${i===0?'disabled':''}>↑ 上移</button><button class="btn ghost sm" id="ed" ${i===s.chapters.length-1?'disabled':''}>↓ 下移</button><span class="grow"></span><button class="btn bad sm" id="ex">刪除</button></div>
+  <div class="row mt"><button class="btn ghost grow" id="ec">取消</button><button class="btn grow" id="eo">儲存</button></div>`,el=>{
+    const q=x=>el.querySelector(x);q('#ec').onclick=closeModal;
+    q('#eo').onclick=()=>{const n=q('#en').value.trim();if(!n){alert('名稱不能空白');return;}c.name=n;c.note=q('#et').value;save();closeModal();SubjectDetail();};
+    q('#ex').onclick=()=>{if(confirm('刪除「'+c.name+'」？')){s.chapters.splice(i,1);save();closeModal();SubjectDetail();}};
+    q('#eu').onclick=()=>{[s.chapters[i-1],s.chapters[i]]=[s.chapters[i],s.chapters[i-1]];save();closeModal();SubjectDetail();};
+    q('#ed').onclick=()=>{[s.chapters[i+1],s.chapters[i]]=[s.chapters[i],s.chapters[i+1]];save();closeModal();SubjectDetail();};});
+}
+
+/* ================= 閃卡 ================= */
+let cardFilter='',cardMode='review',queue=[],qi=0,flipped=false;
+function Cards(){
+  const due=dueCards(cardFilter);
+  $('#app').innerHTML=`<div class="seg mb"><button data-m="review" class="${cardMode==='review'?'on':''}">今日複習（${dueCards().length}）</button><button data-m="list" class="${cardMode==='list'?'on':''}">所有卡片（${S.cards.length}）</button></div>${chips(cardFilter,S.subjects.map(s=>s.id))}<div id="cbody"></div>`;
+  $('#app').querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{cardMode=b.dataset.m;queue=[];Cards();});
+  bindChips(f=>{cardFilter=f;queue=[];Cards();});
+  if(cardMode==='review'){if(!queue.length||queue.some(id=>!S.cards.find(c=>c.id===id))){queue=shuffle(due.map(c=>c.id));qi=0;flipped=false;}reviewCard();}else cardList();
+}
+function reviewCard(){
+  const box=$('#cbody');
+  if(qi>=queue.length){box.innerHTML=`<div class="card empty">🎉 今天${cardFilter?'這科':''}的閃卡都複習完了<div class="mt muted small">法條頁、題目頁都可以一鍵做成閃卡</div><div class="mt"><button class="btn" id="nc">＋ 新增閃卡</button></div></div>`;$('#nc').onclick=()=>editCard();return;}
+  const c=S.cards.find(x=>x.id===queue[qi]);
+  box.innerHTML=`<div class="card"><div class="row mb">${tag(c.subj)}<span class="grow"></span><span class="muted small">${qi+1} / ${queue.length}</span></div>
+  <div class="flash ${flipped?'back':''}" id="fl">${flipped?linkify(c.back):linkify(c.front)}</div>
+  <div class="muted small mt" style="text-align:center">${flipped?'':'點卡片翻面'}</div>
+  ${flipped?`<div class="grid3 mt"><button class="btn bad" data-r="0">忘記</button><button class="btn" style="background:var(--warn)" data-r="1">模糊</button><button class="btn ok" data-r="2">記得</button></div><div class="muted small mt" style="text-align:center">忘記→明天・模糊→3 天後・記得→間隔加倍</div>`:''}</div>`;
+  $('#fl').onclick=e=>{if(e.target.closest('[data-law]'))return;flipped=!flipped;reviewCard();};
+  box.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{rate(c,+b.dataset.r);qi++;flipped=false;save();reviewCard();});
+}
+function rate(c,r){let iv;if(r===0)iv=1;else if(r===1)iv=3;else iv=Math.min(60,Math.max(2,(c.iv||1)*2));c.iv=iv;c.due=addDays(today(),iv);}
+function cardList(){
+  const list=S.cards.filter(c=>!cardFilter||c.subj===cardFilter);
+  $('#cbody').innerHTML=`<button class="btn mb full" id="nc">＋ 新增閃卡</button><div class="card"><ul class="list">${list.length?list.map(c=>`<li class="row tap" data-id="${c.id}"><div class="grow"><div style="white-space:pre-wrap;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(c.front)}</div><div class="muted small">${tag(c.subj)} 下次：${c.due<=today()?'<span class="red">今天</span>':c.due}</div></div><span class="muted">›</span></li>`).join(''):'<li class="empty">沒有卡片</li>'}</ul></div>`;
+  $('#nc').onclick=()=>editCard();$('#cbody').querySelectorAll('[data-id]').forEach(li=>li.onclick=()=>editCard(li.dataset.id));
+}
+function editCard(id,pre){
+  const c=id?S.cards.find(x=>x.id===id):(pre||{subj:cardFilter||'crim',front:'',back:''});
+  openModal(`<h3>${id?'編輯':'新增'}閃卡</h3><label>科目</label><select id="cs">${S.subjects.map(s=>`<option value="${s.id}" ${c.subj===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select>
+  <label>正面（問題 / 法條名稱）</label><textarea id="cf">${esc(c.front)}</textarea><label>背面（答案 / 條文內容）</label><textarea id="cb">${esc(c.back)}</textarea>
+  ${id?'<div class="row mt"><button class="btn bad sm" id="cx">刪除</button></div>':''}<div class="row mt"><button class="btn ghost grow" id="cc">取消</button><button class="btn grow" id="co">儲存</button></div>`,el=>{
+    const q=x=>el.querySelector(x);q('#cc').onclick=closeModal;
+    if(id)q('#cx').onclick=()=>{if(confirm('刪除這張卡片？')){S.cards=S.cards.filter(x=>x.id!==id);save();closeModal();queue=[];Cards();}};
+    q('#co').onclick=()=>{const f=q('#cf').value.trim(),b=q('#cb').value.trim();if(!f||!b){alert('正面和背面都要填');return;}
+      if(id){c.subj=q('#cs').value;c.front=f;c.back=b;}else S.cards.push({id:uid(),subj:q('#cs').value,front:f,back:b,due:today(),iv:0});
+      save();closeModal();queue=[];if(tab==='card')Cards();else alert('已加入閃卡');};});
+}
+
+/* ================= 錯題 ================= */
+let missFilter='',missState='open',missQ='';
+function Mistakes(){
+  let list=S.mistakes.filter(m=>(!missFilter||m.subj===missFilter)&&(missState==='all'||(missState==='open'?!m.done:m.done)));
+  if(missQ)list=list.filter(m=>[m.q,m.ans,m.why,m.mine,m.src].join(' ').includes(missQ));
+  list=list.slice().reverse();const redo=list.filter(m=>m.qid&&QMAP[m.qid]).map(m=>m.qid);
+  $('#app').innerHTML=`<div class="grid2 mb"><button class="btn" id="nm">＋ 手動新增</button><button class="btn ghost" id="redo" ${redo.length?'':'disabled'}>重做這些題（${redo.length}）</button></div>
+  ${chips(missFilter,S.subjects.map(s=>s.id))}
+  <div class="seg mb"><button data-s="open" class="${missState==='open'?'on':''}">未搞懂（${S.mistakes.filter(m=>!m.done).length}）</button><button data-s="done" class="${missState==='done'?'on':''}">已搞懂</button><button data-s="all" class="${missState==='all'?'on':''}">全部</button></div>
+  <input id="mq" placeholder="搜尋題目、答案、原因…" value="${esc(missQ)}" class="mb">
+  ${list.length?list.map(m=>`<div class="card tap" data-id="${m.id}"><div class="row mb">${tag(m.subj)}<span class="muted small grow">${esc(m.src||'')}${m.cnt>1?'・錯 '+m.cnt+' 次':''}</span><span class="small ${m.done?'green':'red'}">${m.done?'已搞懂':'未搞懂'}</span></div>
+    <div style="white-space:pre-wrap;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden">${esc(m.q)}</div>
+    <div class="small mt"><span class="red">我的答案：${esc(m.mine||'—')}</span>　<span class="green">正解：${esc(m.ans)}</span></div>${m.why?`<div class="muted small mt">原因：${esc(m.why)}</div>`:''}</div>`).join(''):'<div class="card empty">沒有錯題</div>'}
+  <div class="muted small">考古題答錯會自動加入；同一題答對 2 次以上會自動標成已搞懂。</div>`;
+  $('#nm').onclick=()=>editMistake();
+  $('#redo').onclick=()=>{QS={mode:'practice',ids:shuffle(redo),i:0,ans:{},title:'錯題重做'};go('bank',{view:'q'});};
+  bindChips(f=>{missFilter=f;Mistakes();});
+  $('#app').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{missState=b.dataset.s;Mistakes();});
+  const mq=$('#mq');let tm;mq.oninput=()=>{missQ=mq.value;clearTimeout(tm);tm=setTimeout(()=>{const pos=mq.selectionStart;Mistakes();const n=$('#mq');n.focus();n.setSelectionRange(pos,pos);},300);};
+  $('#app').querySelectorAll('.card[data-id]').forEach(c=>c.onclick=()=>editMistake(c.dataset.id));
+}
+function editMistake(id){
+  const m=id?S.mistakes.find(x=>x.id===id):{subj:missFilter||'crim',src:'',q:'',mine:'',ans:'',why:'',done:false};
+  openModal(`<h3>${id?'錯題':'新增錯題'}</h3>
+  ${m.qid&&QMAP[m.qid]?`<div class="card" style="background:var(--bg)"><div class="small" style="white-space:pre-wrap">${linkify(m.q)}</div></div>`:''}
+  <label>科目</label><select id="xs">${S.subjects.map(s=>`<option value="${s.id}" ${m.subj===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select>
+  <label>來源</label><input id="xr" value="${esc(m.src)}">
+  <label>題目</label><textarea id="xq">${esc(m.q)}</textarea>
+  <div class="grid2"><div><label>我的答案</label><input id="xm" value="${esc(m.mine)}"></div><div><label>正確答案</label><input id="xa" value="${esc(m.ans)}"></div></div>
+  <label>為什麼錯（寫下來最有用）</label><textarea id="xw">${esc(m.why)}</textarea>
+  <label style="display:flex;align-items:center;gap:8px;color:var(--ink)"><input type="checkbox" id="xd" style="width:auto" ${m.done?'checked':''}>已搞懂</label>
+  ${id?`<div class="row mt"><button class="btn ghost sm" id="xc2">轉成閃卡</button>${m.qid&&QMAP[m.qid]?'<button class="btn ghost sm" id="xr2">重做這題</button>':''}<span class="grow"></span><button class="btn bad sm" id="xx">刪除</button></div>`:''}
+  <div class="row mt"><button class="btn ghost grow" id="xc">取消</button><button class="btn grow" id="xo">儲存</button></div>`,el=>{
+    const q=x=>el.querySelector(x);q('#xc').onclick=closeModal;
+    const collect=()=>({subj:q('#xs').value,src:q('#xr').value.trim(),q:q('#xq').value.trim(),mine:q('#xm').value.trim(),ans:q('#xa').value.trim(),why:q('#xw').value.trim(),done:q('#xd').checked});
+    q('#xo').onclick=()=>{const d=collect();if(!d.q||!d.ans){alert('題目和正確答案要填');return;}if(id)Object.assign(m,d);else S.mistakes.push({id:uid(),date:today(),...d});save();closeModal();Mistakes();};
+    if(id){q('#xx').onclick=()=>{if(confirm('刪除這題？')){S.mistakes=S.mistakes.filter(x=>x.id!==id);save();closeModal();Mistakes();}};
+      q('#xc2').onclick=()=>{const d=collect();Object.assign(m,d);save();closeModal();editCard(null,{subj:d.subj,front:d.q,back:d.ans+(d.why?'\n\n'+d.why:'')});};
+      const r2=el.querySelector('#xr2');if(r2)r2.onclick=()=>{closeModal();QS={mode:'practice',ids:[m.qid],i:0,ans:{},title:'錯題重做'};go('bank',{view:'q'});};}});
+}
+
+/* ================= 成績 ================= */
+function avgOf(r){const v=Object.values(r.s).filter(x=>x!==''&&x!=null&&!isNaN(x)).map(Number);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;}
+function Scores(){
+  const list=S.scores.slice().sort((a,b)=>a.date<b.date?1:-1),latest={};
+  S.scores.slice().sort((a,b)=>a.date<b.date?-1:1).forEach(r=>{for(const k in r.s){if(r.s[k]!==''&&r.s[k]!=null)latest[k]={v:+r.s[k],d:r.date};}});
+  $('#app').innerHTML=`<button class="btn mb full" id="ns">＋ 手動新增成績</button>
+  <div class="card"><h2>分數趨勢</h2>${scoreChart()}<div class="muted small">灰色虛線：近年錄取門檻 50 分　藍色虛線：目標 65 分</div></div>
+  <div class="card"><h2>各科最新分數</h2><table><tr><th>科目</th><th>分數</th><th>日期</th></tr>${S.subjects.map(s=>{const l=latest[s.id];return `<tr><td>${esc(s.name)}</td><td class="${l?(l.v<50?'red':l.v>=65?'green':''):''}"><b>${l?l.v:'—'}</b></td><td class="muted small">${l?l.d:''}</td></tr>`}).join('')}</table></div>
+  <div class="card"><h2>紀錄</h2><ul class="list">${list.length?list.map(r=>{const a=avgOf(r);return `<li class="tap" data-id="${r.id}"><div class="row"><b class="grow">${r.date}　${esc(r.year||r.type)}</b><b class="${a!=null&&a<50?'red':a>=65?'green':''}">${a!=null?a.toFixed(1):'—'}</b></div><div class="muted small">${S.subjects.filter(s=>r.s[s.id]!==''&&r.s[s.id]!=null).map(s=>esc(s.name)+' '+r.s[s.id]).join('・')}${r.auto?'・選擇題得分率':''}</div></li>`}).join(''):'<li class="empty">題庫做完整份考古題會自動記錄</li>'}</ul></div>`;
+  $('#ns').onclick=()=>editScore();$('#app').querySelectorAll('li[data-id]').forEach(l=>l.onclick=()=>editScore(l.dataset.id));
+}
+function scoreChart(){
+  const pts=S.scores.map(r=>({d:r.date,a:avgOf(r)})).filter(x=>x.a!=null).sort((a,b)=>a.d<b.d?-1:1).slice(-30);
+  const W=340,H=180,L=30,R=10,T=12,B=26,y=v=>T+(H-T-B)*(1-v/100);
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="分數趨勢">`;
+  [0,25,50,75,100].forEach(v=>{s+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-4}" y="${y(v)+4}" font-size="10" text-anchor="end" fill="var(--sub)">${v}</text>`;});
+  s+=`<line x1="${L}" x2="${W-R}" y1="${y(50)}" y2="${y(50)}" stroke="var(--sub)" stroke-dasharray="4 4"/><line x1="${L}" x2="${W-R}" y1="${y(65)}" y2="${y(65)}" stroke="var(--pri)" stroke-dasharray="4 4"/>`;
+  if(!pts.length)return s+`<text x="${W/2}" y="${H/2}" text-anchor="middle" font-size="13" fill="var(--sub)">尚無資料</text></svg>`;
+  const x=i=>pts.length===1?(L+W-R)/2:L+8+(W-R-L-16)*i/(pts.length-1);
+  if(pts.length>1)s+=`<polyline fill="none" stroke="var(--pri)" stroke-width="2.5" points="${pts.map((p,i)=>x(i)+','+y(p.a)).join(' ')}"/>`;
+  pts.forEach((p,i)=>{s+=`<circle cx="${x(i)}" cy="${y(p.a)}" r="4" fill="${p.a<50?'var(--bad)':'var(--pri)'}"><title>${p.d}：${p.a.toFixed(1)}</title></circle>`;});
+  const lp=pts[pts.length-1];s+=`<text x="${x(pts.length-1)}" y="${y(lp.a)-8}" font-size="11" text-anchor="middle" fill="var(--ink)" font-weight="700">${lp.a.toFixed(1)}</text><text x="${x(0)}" y="${H-8}" font-size="10" text-anchor="${pts.length>1?'start':'middle'}" fill="var(--sub)">${pts[0].d}</text>`;
+  if(pts.length>1)s+=`<text x="${x(pts.length-1)}" y="${H-8}" font-size="10" text-anchor="end" fill="var(--sub)">${lp.d}</text>`;
+  return s+'</svg>';
+}
+function editScore(id){
+  const r=id?S.scores.find(x=>x.id===id):{date:today(),type:'考古題',year:'',s:{}};
+  openModal(`<h3>${id?'編輯':'新增'}成績</h3><div class="grid2"><div><label>日期</label><input type="date" id="sd" value="${r.date}"></div><div><label>類型</label><select id="st">${['摸底','考古題','模擬考','正式'].map(t=>`<option ${r.type===t?'selected':''}>${t}</option>`).join('')}</select></div></div>
+  <label>說明（例：114年考古題）</label><input id="sy" value="${esc(r.year)}"><label>各科分數（0–100，沒考的留空）</label>
+  <div class="grid2">${S.subjects.map(s=>`<div><label style="margin-top:2px">${esc(s.name)}</label><input type="number" inputmode="decimal" min="0" max="100" data-k="${s.id}" value="${r.s[s.id]??''}"></div>`).join('')}</div>
+  ${id?'<div class="row mt"><span class="grow"></span><button class="btn bad sm" id="sx">刪除</button></div>':''}<div class="row mt"><button class="btn ghost grow" id="sc">取消</button><button class="btn grow" id="so">儲存</button></div>`,el=>{
+    const q=x=>el.querySelector(x);q('#sc').onclick=closeModal;
+    if(id)q('#sx').onclick=()=>{if(confirm('刪除這筆成績？')){S.scores=S.scores.filter(x=>x.id!==id);save();closeModal();Scores();}};
+    q('#so').onclick=()=>{const sc={};let any=false;el.querySelectorAll('[data-k]').forEach(i=>{if(i.value!==''){sc[i.dataset.k]=Math.max(0,Math.min(100,+i.value));any=true;}});if(!any){alert('至少填一科分數');return;}
+      const d={date:q('#sd').value||today(),type:q('#st').value,year:q('#sy').value.trim(),s:sc};if(id)Object.assign(r,d);else S.scores.push({id:uid(),...d});save();closeModal();Scores();};});
+}
+
+/* ================= 設定 ================= */
+let resetArmed=false;
+function Settings(){
+  const L=DATA.laws,E=DATA.exams;
+  $('#app').innerHTML=`
+  <div class="card"><h2>備份</h2><div class="muted small mb">你的進度、錯題、閃卡、申論答案都只存在這支手機。換手機或清除 Safari 資料會全部不見，每週匯出一次，存到 iCloud 雲碟或 Google 雲端。${S.lastBackup?'<br>上次備份：'+S.lastBackup:''}</div>
+  <div class="row"><button class="btn grow" id="ex">匯出備份</button><button class="btn ghost grow" id="im">匯入備份</button></div><input type="file" id="imf" accept="application/json,.json" style="display:none"></div>
+  <div class="card"><h2>內建資料</h2><ul class="list small">
+    <li><b>考古題：</b>${E.years[0]}–${E.years[E.years.length-1]} 年四等行政警察，選擇題 ${E.mc.length} 題、申論題 ${E.essay.length} 題（考選部）</li>
+    <li><b>法條：</b>${L.laws.length} 部法規，資料日期 ${esc(L.updated)}（${esc(L.source)}）</li>
+    <li><b>筆記：</b>${DATA.notes.length} 篇</li>
+    <li class="muted">法條每週會由 GitHub 自動更新（需依說明設定一次）。新的考古題每年 8 月後公布，請 Claude 幫你加進來。</li></ul></div>
+  <div class="card"><h2>讀書階段</h2><div class="muted small mb">拿到入營通知後，改「當兵」的日期。</div>
+  <div id="phs">${S.phases.map((p,i)=>`<div class="mb" style="border-bottom:1px solid var(--line);padding-bottom:8px"><input data-i="${i}" data-f="name" value="${esc(p.name)}" style="font-weight:700">
+    <div class="grid3 mt"><input type="date" data-i="${i}" data-f="start" value="${p.start}"><input type="date" data-i="${i}" data-f="end" value="${p.end}"><input type="number" inputmode="numeric" data-i="${i}" data-f="hours" value="${p.hours}" placeholder="時/週"></div></div>`).join('')}</div>
+  <div class="muted small">三格依序：開始日、結束日、每週目標時數。「試考」「正式筆試」的開始日用在首頁倒數。</div><button class="btn mt full" id="sp">儲存階段設定</button></div>
+  <div class="card"><h2>番茄鐘</h2><div class="grid2"><div><label>專注（分）</label><input type="number" id="pf" value="${S.settings.focus}"></div><div><label>休息（分）</label><input type="number" id="pb" value="${S.settings.brk}"></div></div><button class="btn mt full" id="spm">儲存</button></div>
+  <div class="card"><h2>考試資訊</h2><ul class="list small">
+    <li><b>考試：</b>公務人員特種考試一般警察人員考試 四等 行政警察人員</li>
+    <li><b>時程：</b>報名約 3 月、筆試約 6 月、體能複試約 10 月</li>
+    <li><b>科目：</b>國文（作文與測驗）、英文、法學知識（憲法、法學緒論）、刑法概要、警察法規概要、犯罪學概要</li>
+    <li><b>警察法規命題範圍：</b>警察法、行政執行法、社會秩序維護法、警械使用條例、集會遊行法、警察職權行使法、行政程序法、公務人員行政中立法</li>
+    <li><b>體能（男）：</b>1,200 公尺跑走 5 分 50 秒內、立定跳遠 200 公分以上</li>
+    <li><b>錄取門檻：</b>2026 年平均 50 分；目標平均 65 分</li>
+    <li><a href="https://www.moex.gov.tw/" target="_blank" rel="noopener">考選部（應考須知）</a>・<a href="https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx" target="_blank" rel="noopener">考畢試題</a>・<a href="https://law.moj.gov.tw/" target="_blank" rel="noopener">全國法規資料庫</a></li>
+    <li class="muted">實際規定以考選部當年應考須知為準。</li></ul></div>
+  <div class="card"><h2>重設</h2><button class="btn bad full" id="rs">${resetArmed?'再按一次確認：刪除所有資料':'重設所有資料'}</button></div>
+  <div class="muted small" style="text-align:center">警考讀書 v2.0</div>`;
+  $('#sp').onclick=()=>{const np=S.phases.map(p=>({...p}));$('#phs').querySelectorAll('[data-i]').forEach(i=>{const p=np[+i.dataset.i];p[i.dataset.f]=i.dataset.f==='hours'?Math.max(0,+i.value||0):i.value;});
+    if(np.some(p=>!p.name||!p.start||!p.end||p.end<p.start)){alert('每個階段都要有名稱，結束日不能早於開始日');return;}S.phases=np;save();alert('已儲存');};
+  $('#spm').onclick=()=>{const f=+$('#pf').value,b=+$('#pb').value;if(f<1||b<1){alert('請輸入大於 0 的分鐘數');return;}S.settings.focus=f;S.settings.brk=b;save();alert('已儲存');};
+  $('#ex').onclick=exportData;$('#im').onclick=()=>$('#imf').click();
+  $('#imf').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);if(!d.subjects||!d.sessions)throw new Error('格式不對');if(!confirm('匯入會覆蓋目前所有資料，確定？'))return;S=d;fill();save();alert('匯入完成');render();}catch(err){alert('匯入失敗：'+err.message);}};rd.readAsText(f);};
+  $('#rs').onclick=()=>{if(!resetArmed){resetArmed=true;Settings();setTimeout(()=>{resetArmed=false;if(tab==='set')Settings();},5000);return;}resetArmed=false;S=freshState();save();alert('已重設');stack=[];tab='home';render();};
+}
+function exportData(){
+  S.lastBackup=today();save();
+  const blob=new Blob([JSON.stringify(S)],{type:'application/json'}),name='警考讀書備份_'+today()+'.json',file=new File([blob],name,{type:'application/json'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:name}).catch(()=>{});return;}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
+}
+
+/* ================= 啟動 ================= */
+load();render();
+async function loadData(){
+  try{
+    const [laws,exams,notes]=await Promise.all(['laws','exams','notes'].map(n=>fetch('./data/'+n+'.json').then(r=>{if(!r.ok)throw new Error(n+' '+r.status);return r.json();})));
+    DATA={laws,exams,notes};exams.mc.forEach(q=>QMAP[q.id]=q);buildLawIndex();render();
+  }catch(e){$('#app').innerHTML=`<div class="alert">資料載入失敗：${esc(e.message)}<br>請確認 data 資料夾有上傳，然後重新整理。</div>`;}
+}
+loadData();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&tab==='timer')updateClock();});
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));}
+</script>
+</body>
+</html>
